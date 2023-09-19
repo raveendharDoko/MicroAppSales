@@ -12,7 +12,7 @@ userRouter.post("/login", validate.login, userControllers.login)
 userRouter.use(verifyUser)
 
 userRouter.post("/createPower", validate.createPower, userControllers.createPowers) // create Admin and manager by superAdmin 
-userRouter.post("/getYourEmployees",userControllers.getYourEmployees)
+userRouter.get("/getYourEmployees", userControllers.getYourEmployees)
 userRouter.post("/createNetwork", validate.createNetwork, userControllers.createRelationship) // adding team members by manager
 
 userRouter.get("/getAllAdmin", userControllers.getAllAdmins)

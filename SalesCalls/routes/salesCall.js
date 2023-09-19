@@ -6,7 +6,6 @@ const validate = require("../validation/validate")()
 const salesCallRouter = express.Router()
 
 salesCallRouter.use(verifyUser)
-
 salesCallRouter.post("/assignCall", validate.assignCall, salesCallController.assignSaleCalls)
 salesCallRouter.get("/allAssignedCall", salesCallController.getAllCalls) // assign companies with contact to each employees
 salesCallRouter.get("/getUserCalls", salesCallController.yourCallList)

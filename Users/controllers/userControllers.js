@@ -59,7 +59,7 @@ module.exports = function () {
 
             privateKey = fs.readFileSync("./config/privateKey.key");
             token = jwt.sign({ user: { userId: checkExist._id, userRole: checkExist.role, username: checkExist.username } }, privateKey, { algorithm: 'RS256', expiresIn: '2h' })
-            res.setHeader("Authorization", "Bearer " + token)
+            // res.setHeader("Authorization", "Bearer " + token)
             // token = jwt.sign({ user: { userId: checkExist._id, userRole: checkExist.role, username: checkExist.username } }, process.env.JWT_SECRET, { expiresIn: "2h" })
             return res.send({ status: 1, response: "Logged successfully", data: token })
         } catch (error) {
@@ -73,18 +73,17 @@ module.exports = function () {
         try {
             let addToTeam = req.body, getUser;
             addToTeam = addToTeam.data[0]
-            getUser = await db.findSingleDocument("users", { _id: addToTeam.employeeId })
-
-            if (req.userInfo.userRole !== 2) {
-                return res.send({ status: 0, response: "You're not an manager" })
-            }
-            if (getUser.role !== 1) {
-                return res.send({ status: 0, response: "You can't assign" })
-            }
-            if (getUser.managedBy !== null) {
-                return res.send({ status: 0, response: `Manager already assigned to ${getUser._id}` })
-            }
-            await db.updateOneDocument("users", { _id: getUser._id }, { managedBy: req.userInfo.userId })
+            getUser = await db.findDocuments("users", { _id: addToTeam.employeeId })
+            // if (req.userInfo.userRole !== 2) {
+            //     return res.send({ status: 0, response: "You're not an manager" })
+            // }
+            // if (getUser.role !== 1) {
+            //     return res.send({ status: 0, response: "You can't assign" })
+            // }
+            // if (getUser.managedBy !== null) {
+            //     return res.send({ status: 0, response: `Manager already assigned to ${getUser._id}` })
+            // }
+            await db.updateManyDocuments("users", { _id: addToTeam.employeeId }, { managedBy: req.userInfo.userId })
             return res.send({ status: 1, response: "Manager assigned" })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
@@ -143,13 +142,12 @@ module.exports = function () {
 
     userControllers.getYourEmployees = async (req, res) => {
         try {
-            let yourEmployees = req.body, getUsers;
-            yourEmployees = yourEmployees.data[0]
-            getUsers = await db.findDocuments("users", { managedBy: yourEmployees.managedById })
+            let getUsers;
+            getUsers = await db.findDocuments("users", { managedBy: req.userInfo.userId })
             if (getUsers.length === 0) {
                 return res.send({ status: 0, data: JSON.stringify(getUsers) })
             }
-            return res.send({ status: 1, data: getUsers })
+            return res.send({ status: 1, data: JSON.stringify(getUsers) })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }

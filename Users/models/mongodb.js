@@ -19,7 +19,17 @@ const updateDocument = async (collection, filter, update, options) => {
   }
 }
 
+const updateManyDocuments = async (collection, filter, update, options) => {
+  try {
+    let result = await db[collection].updateMany(filter, update, options);
 
+    return result;
+  } catch (error) {
+    console.error("Error findOneAndUpdate documents: ", error)
+
+    throw error;
+  }
+}
 
 const findDocuments = async (collection, filter, options) => {
   try {
@@ -109,6 +119,7 @@ module.exports = {
   updateDocument,
   findDocuments,
   findSingleDocument,
+  updateManyDocuments,
   insertSingleDocument,
   updateOneDocument,
   findByIdAndUpdate,

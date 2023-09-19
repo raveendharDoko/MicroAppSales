@@ -10,14 +10,14 @@ module.exports = function () {
         try {
             let assignCall = req.body, checkIfAssigned;
             assignCall = assignCall.data[0]
-            // if (req.userInfo.userRole !== 2) {
-            //     return res.send({ status: 0, response: "You're not an manager" })
-            // }
+            if (req.userInfo.userRole !== 2) {
+                return res.send({ status: 0, response: "You're not an manager" })
+            }
             checkIfAssigned = await db.findSingleDocument("salesCall", { companyId: assignCall.companyId })
             if (checkIfAssigned) {
                 return res.send({ status: 0, response: `This company already assigned to ${checkIfAssigned.assignedTo} ` })
             }
-            // assignCall.assignedBy = req.userInfo.userId
+            assignCall.assignedBy = req.userInfo.userId
             await db.insertSingleDocument("salesCall", assignCall)
             return res.send({ status: 1, response: "Call assigned" })
 
@@ -57,7 +57,6 @@ module.exports = function () {
             })
 
             return res.send({ status: 1, data: JSON.stringify(info) })
-
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }
@@ -74,7 +73,7 @@ module.exports = function () {
                 if (!getCall) {
                     return res.send({ status: 0, response: "No sales call found" })
                 }
-            await db.updateOneDocument("salesCall",{ _id: getCall._id }, { $push: { remarks: [{ data: updateReport.report }] } })
+            await db.updateOneDocument("salesCall", { _id: getCall._id }, { $push: { remarks: [{ data: updateReport.report }] } })
             return res.send({ status: 1, response: "Report updated" })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
@@ -84,14 +83,46 @@ module.exports = function () {
 
     salesControllers.getAllCalls = async (req, res) => {
         try {
-            let getAssignedCalls;
+            let getAssignedCalls, info;
+            let id = new mongoose.Types.ObjectId(req.userInfo.userId)
+            getAssignedCalls = await SalesCalls.aggregate([
+                { $match: { "assignedBy": id } },
+                {
+                    $lookup: {
+                        from: "companies",
+                        localField: "companyId",
+                        foreignField: "_id",
+                        as: "getCompany",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "assignedTo",
+                        foreignField: "_id",
+                        as: "getUser",
+                    },
+                },
+                { $project: { remarks: 1, status: 1, assignedDate: 1, "getCompany.companyName": 1, "getUser.username": 1 } }
+            ])
 
-            getAssignedCalls = await db.findDocuments("salesCall",{ assignedBy: req.userInfo.userId })
-            
+            info = getAssignedCalls.map((call) => {
+                let obj = {}
+                obj.callId = call._id
+                obj.companyId = call.companyId
+                obj.assignedOn = call.assignedDate
+                obj.status = call.status
+                obj.companyName = call.getCompany[0].companyName
+                obj.employeeName = call.getUser[0].username
+                obj.remarks = call.remarks
+                return obj
+            })
+            // getAssignedCalls = await db.findDocuments("salesCall", { assignedBy: req.userInfo.userId })
+
             if (getAssignedCalls.length === 0) {
                 return res.send({ status: 0, data: JSON.stringify(getAssignedCalls) })
             }
-            return res.send({ status: 1, data: JSON.stringify(getAssignedCalls) })
+            return res.send({ status: 1, data: JSON.stringify(info) })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }
@@ -108,11 +139,11 @@ module.exports = function () {
         try {
             let updateStatus = req.body, getCall;
             updateStatus = updateStatus.data[0]
-            getCall = await db.findSingleDocument("salesCall",{ _id: updateStatus.id })
+            getCall = await db.findSingleDocument("salesCall", { _id: updateStatus.id })
             if (!getCall) {
                 return res.send({ status: 0, response: "No calls found" })
             }
-            await db.updateOneDocument("salesCall",{ _id: updateStatus.id }, { status: updateStatus.status })
+            await db.updateOneDocument("salesCall", { _id: updateStatus.id }, { status: updateStatus.status })
             return res.send({ status: 1, response: "Status updated" })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
