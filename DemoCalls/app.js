@@ -4,7 +4,7 @@ const demoCallRouter = require('./routes/demo');
 const helmet = require("helmet");
 const { serverConnections } = require('./config/config');
 const bodyParser = require('body-parser');
-
+const cors = require("cors")
 require("dotenv").config()
 
 mongoose.connect(serverConnections.MONGODB,{ useNewUrlParser: true, useUnifiedTopology: true})
@@ -14,6 +14,35 @@ mongoose.connect(serverConnections.MONGODB,{ useNewUrlParser: true, useUnifiedTo
 
 const app = express()
 
+app.options("*", cors());
+
+ 
+
+app.use(
+
+    cors({
+
+      origin: "*",
+
+      methods: ["GET", "POST"],
+
+      allowedHeaders: [
+
+        "Origin",
+
+        "X-Requested-with",
+
+        "Content-Type",
+
+        "Accept",
+
+        "Authorization",
+
+      ],
+
+    })
+
+  );
 app.use(express.json())
 app.use(bodyParser.json())
 

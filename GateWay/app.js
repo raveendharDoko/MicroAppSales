@@ -1,8 +1,39 @@
 const express = require('express');
 const httpProxy = require('http-proxy');
-const { verifyToken } = require('./Auth/auth');
+// const { verifyToken } = require('./Auth/auth');
+const cors = require("cors")
 require("dotenv").config()
 const app = express();
+
+app.options("*", cors());
+
+ 
+
+app.use(
+
+    cors({
+
+      origin: "*",
+
+      methods: ["GET", "POST"],
+
+      allowedHeaders: [
+
+        "Origin",
+
+        "X-Requested-with",
+
+        "Content-Type",
+
+        "Accept",
+
+        "Authorization",
+
+      ],
+
+    })
+
+  );
 
 const userService = httpProxy.createProxyServer({ target: 'http://localhost:2000' });
 const companyService = httpProxy.createProxyServer({ target: 'http://localhost:3000' });

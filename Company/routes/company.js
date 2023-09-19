@@ -5,7 +5,7 @@ const validate = require("../validation/validate")()
 
 const companyRouter = express.Router()
 
-// companyRouter.use(verifyUser)
+companyRouter.use(verifyUser)
 
 companyRouter.post("/addCompany",validate.addCompany,companyControllers.addCompany)
 companyRouter.get("/getAllCompany", companyControllers.getAllCompany)

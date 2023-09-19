@@ -1,4 +1,3 @@
-const DemoCall = require("../schema/demo.js")
 const db = require("../models/mongodb.js")
 
 module.exports = function () {
