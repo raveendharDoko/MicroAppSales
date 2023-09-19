@@ -1,8 +1,7 @@
-const User = require("../schema/user.js")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const db = require("../models/mongodb.js")
-
+const fs = require("fs")
 module.exports = function () {
 
     let userControllers = {};
@@ -47,7 +46,7 @@ module.exports = function () {
 
     userControllers.login = async (req, res) => {
         try {
-            let userLogin = req.body, matchPass, token, checkExist;
+            let userLogin = req.body, matchPass, token, checkExist,privateKey;
             userLogin = userLogin.data[0]
             checkExist = await db.findSingleDocument("users", { email: userLogin.email })
             if (!checkExist) {
@@ -57,6 +56,8 @@ module.exports = function () {
             if (matchPass === false) {
                 return res.send({ status: 1, response: "Password doesn't match" })
             }
+            // privateKey = fs.readFileSync("../config/privateKey.key");
+            // token = jwt.sign({ user: { userId: checkExist._id, userRole: checkExist.role, username: checkExist.username } }, privateKey, { algorithm: 'RS256', expiresIn: '2h' })
             token = jwt.sign({ user: { userId: checkExist._id, userRole: checkExist.role, username: checkExist.username } }, process.env.JWT_SECRET, { expiresIn: "2h" })
             return res.send({ status: 1, response: "Logged successfully", data: token })
         } catch (error) {
