@@ -46,7 +46,7 @@ module.exports = function () {
 
     userControllers.login = async (req, res) => {
         try {
-            let userLogin = req.body, matchPass, token, checkExist,privateKey;
+            let userLogin = req.body, matchPass, token, checkExist, privateKey;
             userLogin = userLogin.data[0]
             checkExist = await db.findSingleDocument("users", { email: userLogin.email })
             if (!checkExist) {
@@ -56,7 +56,7 @@ module.exports = function () {
             if (matchPass === false) {
                 return res.send({ status: 0, response: "Password doesn't match" })
             }
-           
+
             privateKey = fs.readFileSync("./config/privateKey.key");
             token = jwt.sign({ user: { userId: checkExist._id, userRole: checkExist.role, username: checkExist.username } }, privateKey, { algorithm: 'RS256', expiresIn: '2h' })
             res.setHeader("Authorization", "Bearer " + token)
@@ -136,6 +136,20 @@ module.exports = function () {
                 return res.send({ status: 0, data: JSON.stringify(getAllManagers) })
             }
             return res.send({ status: 1, data: JSON.stringify(getAllManagers) })
+        } catch (error) {
+            return res.send({ status: 0, response: error.message })
+        }
+    }
+
+    userControllers.getYourEmployees = async (req, res) => {
+        try {
+            let yourEmployees = req.body, getUsers;
+            yourEmployees = yourEmployees.data[0]
+            getUsers = await db.findDocuments("users", { managedBy: yourEmployees.managedById })
+            if (getUsers.length === 0) {
+                return res.send({ status: 0, data: JSON.stringify(getUsers) })
+            }
+            return res.send({ status: 1, data: getUsers })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }
