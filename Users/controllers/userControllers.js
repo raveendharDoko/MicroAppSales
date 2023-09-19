@@ -155,7 +155,6 @@ module.exports = function () {
         }
     }
 
-
     return userControllers
 
 }

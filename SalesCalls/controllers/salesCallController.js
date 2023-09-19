@@ -10,14 +10,14 @@ module.exports = function () {
         try {
             let assignCall = req.body, checkIfAssigned;
             assignCall = assignCall.data[0]
-            if (req.userInfo.userRole !== 2) {
-                return res.send({ status: 0, response: "You're not an manager" })
-            }
+            // if (req.userInfo.userRole !== 2) {
+            //     return res.send({ status: 0, response: "You're not an manager" })
+            // }
             checkIfAssigned = await db.findSingleDocument("salesCall", { companyId: assignCall.companyId })
             if (checkIfAssigned) {
                 return res.send({ status: 0, response: `This company already assigned to ${checkIfAssigned.assignedTo} ` })
             }
-            assignCall.assignedBy = req.userInfo.userId
+            // assignCall.assignedBy = req.userInfo.userId
             await db.insertSingleDocument("salesCall", assignCall)
             return res.send({ status: 1, response: "Call assigned" })
 
