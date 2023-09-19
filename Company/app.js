@@ -23,7 +23,7 @@ app.use(helmet({
     xXssProtection: false,
 }))
 
-app.use("/",companyRouter)
+app.use("/company",companyRouter)
 
 let port = serverConnections.PORT
 app.listen(port, () => {

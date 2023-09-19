@@ -24,7 +24,7 @@ app.use(helmet({
 }))
 
 
-app.use("/", userRouter)
+app.use("/user", userRouter)
 
 let port = serverConnections.PORT
 

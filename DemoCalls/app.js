@@ -24,7 +24,7 @@ app.use(helmet({
     xXssProtection: false,
 }))
 
-app.use("/",demoCallRouter)
+app.use("/demoCalls",demoCallRouter)
 
 
 let port = serverConnections.PORT

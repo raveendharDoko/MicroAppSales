@@ -3,7 +3,6 @@ const db = require("../models/mongodb.js")
 module.exports = function () {
     let companyControllers = {}
 
-
     companyControllers.addCompany = async (req, res) => {
         try {
             let addCompany = req.body,checkIfExist;

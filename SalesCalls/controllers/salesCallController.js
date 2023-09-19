@@ -43,7 +43,7 @@ module.exports = function () {
             ])
 
             if (getCompany.length === 0) {
-                return res.send({ status: 1, response: getCompany })
+                return res.send({ status: 1, data: getCompany })
             }
             let info = getCompany.map((call) => {
                 let obj = {}
@@ -55,7 +55,7 @@ module.exports = function () {
                 return obj
             })
 
-            return res.send({ status: 0, response: info })
+            return res.send({ status: 0, data: info })
 
         } catch (error) {
             return res.send({ status: 0, response: error.message })
