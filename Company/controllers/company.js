@@ -28,9 +28,9 @@ module.exports = function () {
         try {
             let ListOfCompanies = await db.findDocuments("company")
             if (ListOfCompanies.length === 0) {
-                return res.send({ status: 1, data: ListOfCompanies })
+                return res.send({ status: 1, data: JSON.stringify(ListOfCompanies) })
             }
-            return res.send({ status: 1, data: ListOfCompanies })
+            return res.send({ status: 1, data: JSON.stringify(ListOfCompanies) })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }

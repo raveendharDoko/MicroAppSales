@@ -13,7 +13,7 @@ module.exports = function () {
                 return res.send({ status: 1, response: `This demo is already assigned to ${checkIfAssigned.assignedTo} ` })
             }
             assignDemo.assignedBy = req.userInfo.userId
-            await db.insertSingleDocument("demo",assignDemo )
+            await db.insertSingleDocument("demo", assignDemo)
             return res.send({ status: 1, response: "Call assigned" })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
@@ -44,9 +44,9 @@ module.exports = function () {
         try {
             let ListOfDemos = await db.findDocuments("demo")
             if (ListOfDemos.length === 0) {
-                return res.send({ status: 1, data: ListOfDemos })
+                return res.send({ status: 1, data: JSON.stringify(ListOfDemos) })
             }
-            return res.send({ status: 1, data: ListOfDemos })
+            return res.send({ status: 1, data: JSON.stringify(ListOfDemos) })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }

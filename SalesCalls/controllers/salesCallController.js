@@ -5,6 +5,7 @@ const db = require("../models/mongodb.js")
 module.exports = function () {
 
     let salesControllers = {};
+
     salesControllers.assignSaleCalls = async (req, res) => {
         try {
             let assignCall = req.body, checkIfAssigned;
@@ -43,7 +44,7 @@ module.exports = function () {
             ])
 
             if (getCompany.length === 0) {
-                return res.send({ status: 1, data: getCompany })
+                return res.send({ status: 1, data: JSON.stringify(getCompany) })
             }
             let info = getCompany.map((call) => {
                 let obj = {}
@@ -55,7 +56,7 @@ module.exports = function () {
                 return obj
             })
 
-            return res.send({ status: 0, data: info })
+            return res.send({ status: 0, data: JSON.stringify(info) })
 
         } catch (error) {
             return res.send({ status: 0, response: error.message })
@@ -86,10 +87,11 @@ module.exports = function () {
             let getAssignedCalls;
 
             getAssignedCalls = await db.findDocuments("salesCall",{ assignedBy: req.userInfo.userId })
-            if (!getAssignedCalls) {
-                return res.send({ status: 1, data: getAssignedCalls })
+            
+            if (getAssignedCalls.length === 0) {
+                return res.send({ status: 1, data: JSON.stringify(getAssignedCalls) })
             }
-            return res.send({ status: 1, data: getAssignedCalls })
+            return res.send({ status: 1, data: JSON.stringify(getAssignedCalls) })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }

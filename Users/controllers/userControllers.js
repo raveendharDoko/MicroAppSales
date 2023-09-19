@@ -5,7 +5,7 @@ const db = require("../models/mongodb.js")
 
 module.exports = function () {
 
-   let userControllers = {};
+    let userControllers = {};
 
     userControllers.createPowers = async (req, res) => {
         try {
@@ -97,9 +97,9 @@ module.exports = function () {
                 return res.send({ status: 1, reponse: "Not authorized" })
             }
             if (getAllEmployees.length === 0) {
-                return res.send({ status: 1, data: getAllEmployees })
+                return res.send({ status: 1, data: JSON.stringify(getAllEmployees) })
             }
-            return res.send({ status: 1, data: getAllEmployees })
+            return res.send({ status: 1, data: JSON.stringify(getAllEmployees) })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }
@@ -114,14 +114,13 @@ module.exports = function () {
                 return res.send({ status: 1, reponse: "Not authorized" })
             }
             if (getAllAdmins.length === 0) {
-                return res.send({ status: 1, data: getAllAdmins })
+                return res.send({ status: 1, data: JSON.stringify(getAllAdmins) })
             }
-            return res.send({ status: 1, data: getAllAdmins })
+            return res.send({ status: 1, data: JSON.stringify(getAllAdmins) })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }
     }
-
 
 
     userControllers.getAllManagers = async (req, res) => {
@@ -131,13 +130,14 @@ module.exports = function () {
                 return res.send({ status: 1, reponse: "Not authorized" })
             }
             if (getAllManagers.length === 0) {
-                return res.send({ status: 1, data: getAllManagers })
+                return res.send({ status: 1, data: JSON.stringify(getAllManagers) })
             }
-            return res.send({ status: 1, data: getAllManagers })
+            return res.send({ status: 1, data: JSON.stringify(getAllManagers) })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }
     }
+
 
     return userControllers
 
