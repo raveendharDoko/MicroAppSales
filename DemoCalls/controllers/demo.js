@@ -1,5 +1,6 @@
 const db = require("../models/mongodb.js")
-
+const Demo = require("../schema/demo.js");
+const mongoose = require("mongoose")
 module.exports = function () {
     let demoController = {}
 
@@ -39,13 +40,54 @@ module.exports = function () {
 
 
 
-    demoController.getAllDemo = async (req, res) => {
+    demoController.getMyDemo = async (req, res) => {
         try {
-            let ListOfDemos = await db.findDocuments("demo")
-            if (ListOfDemos.length === 0) {
-                return res.send({ status: 0, data: JSON.stringify(ListOfDemos) })
+            // let ListOfDemos = await db.findDocuments("demo",{assignedTo:req.userInfo.userId})
+            let id, getAssignedCalls, info;
+            id = new mongoose.Types.ObjectId(req.userInfo.userId)
+            getAssignedCalls = await Demo.aggregate([
+                { $match: { "assignedTo": id } },
+                {
+                    $lookup: {
+                        from: "salescalls",
+                        localField: "callId",
+                        foreignField: "_id",
+                        as: "getCall",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "assignedBy",
+                        foreignField: "_id",
+                        as: "getAssigner",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "companies",
+                        localField: "getCall.companyId",
+                        foreignField: "_id",
+                        as: "company",
+                    },
+                },
+                { $project: { assignedBy: 1, status: 1, remarks: 1, "company.companyName": 1, "getAssigner.username": 1 } },
+
+            ])
+            if (getAssignedCalls.length === 0) {
+                return res.send({ status: 1, data: JSON.stringify(getAssignedCalls) })
             }
-            return res.send({ status: 1, data: JSON.stringify(ListOfDemos) })
+            info = getAssignedCalls.map((call) => {
+                let obj = {}
+                obj.callId = call._id
+                obj.companyName = call.company[0].companyName
+                obj.status = call.status
+                obj.employeeName = call.getAssigner[0].username
+                obj.remarks = call.remarks
+                return obj
+            })
+
+            return res.send({ status: 1, data: JSON.stringify(info) })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }
@@ -72,6 +114,58 @@ module.exports = function () {
 
             return res.send({ status: 1, response: "Status updated" })
 
+        } catch (error) {
+            return res.send({ status: 0, response: error.message })
+        }
+    }
+
+    demoController.getAllCalls = async (req, res) => {
+        try {
+            let getAssignedCalls, info;
+            let id = new mongoose.Types.ObjectId(req.userInfo.userId)
+            getAssignedCalls = await Demo.aggregate([
+                { $match: { "assignedBy": id } },
+                {
+                    $lookup: {
+                        from: "salescalls",
+                        localField: "callId",
+                        foreignField: "_id",
+                        as: "getCall",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "assignedTo",
+                        foreignField: "_id",
+                        as: "getUser",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "companies",
+                        localField: "getCall.companyId",
+                        foreignField: "_id",
+                        as: "company",
+                    },
+                },
+                { $project: { assignedTo: 1, status: 1, remarks: 1, "company.companyName": 1, "getUser.username": 1 } },
+
+            ])
+            if (getAssignedCalls.length === 0) {
+                return res.send({ status: 1, data: JSON.stringify(getAssignedCalls) })
+            }
+            info = getAssignedCalls.map((call) => {
+                let obj = {}
+                obj.callId = call._id
+                obj.companyName = call.company[0].companyName
+                obj.status = call.status
+                obj.employeeName = call.getUser[0].username
+                obj.remarks = call.remarks
+                return obj
+            })
+
+            return res.send({ status: 1, data: JSON.stringify(info) })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }

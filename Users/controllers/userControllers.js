@@ -99,7 +99,7 @@ module.exports = function () {
                 return res.send({ status: 0, reponse: "Not authorized" })
             }
             if (getAllEmployees.length === 0) {
-                return res.send({ status: 0, data: JSON.stringify(getAllEmployees) })
+                return res.send({ status: 1, data: JSON.stringify(getAllEmployees) })
             }
             return res.send({ status: 1, data: JSON.stringify(getAllEmployees) })
         } catch (error) {
@@ -116,7 +116,7 @@ module.exports = function () {
                 return res.send({ status: 0, reponse: "Not authorized" })
             }
             if (getAllAdmins.length === 0) {
-                return res.send({ status: 0, data: JSON.stringify(getAllAdmins) })
+                return res.send({ status: 1, data: JSON.stringify(getAllAdmins) })
             }
             return res.send({ status: 1, data: JSON.stringify(getAllAdmins) })
         } catch (error) {
@@ -132,7 +132,7 @@ module.exports = function () {
                 return res.send({ status: 0, reponse: "Not authorized" })
             }
             if (getAllManagers.length === 0) {
-                return res.send({ status: 0, data: JSON.stringify(getAllManagers) })
+                return res.send({ status: 1, data: JSON.stringify(getAllManagers) })
             }
             return res.send({ status: 1, data: JSON.stringify(getAllManagers) })
         } catch (error) {
@@ -145,7 +145,7 @@ module.exports = function () {
             let getUsers;
             getUsers = await db.findDocuments("users", { managedBy: req.userInfo.userId })
             if (getUsers.length === 0) {
-                return res.send({ status: 0, data: JSON.stringify(getUsers) })
+                return res.send({ status: 1, data: JSON.stringify(getUsers) })
             }
             return res.send({ status: 1, data: JSON.stringify(getUsers) })
         } catch (error) {

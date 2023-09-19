@@ -3,7 +3,8 @@ const mongoose = require("mongoose")
 let ObjectId = mongoose.Types.ObjectId
 const demoAssignSchema = mongoose.Schema({
     callId: {
-        type: ObjectId
+        type: ObjectId,
+        ref:"salesCalls"
     },
     status:{
         type:Number,

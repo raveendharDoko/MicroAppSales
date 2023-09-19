@@ -44,7 +44,7 @@ module.exports = function () {
             ])
 
             if (getCompany.length === 0) {
-                return res.send({ status: 0, data: JSON.stringify(getCompany) })
+                return res.send({ status: 1, data: JSON.stringify(getCompany) })
             }
             let info = getCompany.map((call) => {
                 let obj = {}
@@ -117,10 +117,9 @@ module.exports = function () {
                 obj.remarks = call.remarks
                 return obj
             })
-            // getAssignedCalls = await db.findDocuments("salesCall", { assignedBy: req.userInfo.userId })
-
+            
             if (getAssignedCalls.length === 0) {
-                return res.send({ status: 0, data: JSON.stringify(getAssignedCalls) })
+                return res.send({ status: 1, data: JSON.stringify(getAssignedCalls) })
             }
             return res.send({ status: 1, data: JSON.stringify(info) })
         } catch (error) {
