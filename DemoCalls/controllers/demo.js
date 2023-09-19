@@ -9,7 +9,7 @@ module.exports = function () {
             assignDemo = assignDemo.data[0]
             checkIfAssigned = await db.findSingleDocument("demo", { callId: assignDemo.callId })
             if (checkIfAssigned) {
-                return res.send({ status: 1, response: `This demo is already assigned to ${checkIfAssigned.assignedTo} ` })
+                return res.send({ status: 0, response: `This demo is already assigned to ${checkIfAssigned.assignedTo} ` })
             }
             assignDemo.assignedBy = req.userInfo.userId
             await db.insertSingleDocument("demo", assignDemo)
@@ -27,7 +27,7 @@ module.exports = function () {
             getCall = await db.findSingleDocument("demo", { _id: updateReport.callId })
             if (getCall.assignedTo = req.userInfo.userId)
                 if (!getCall) {
-                    return res.send({ status: 1, response: "No sales call found" })
+                    return res.send({ status: 0, response: "No sales call found" })
                 }
             await db.updateOneDocument("demo", { _id: getCall._id }, { $push: { remarks: [{ data: updateReport.report }] } })
             return res.send({ status: 1, response: "Report updated" })
@@ -43,7 +43,7 @@ module.exports = function () {
         try {
             let ListOfDemos = await db.findDocuments("demo")
             if (ListOfDemos.length === 0) {
-                return res.send({ status: 1, data: JSON.stringify(ListOfDemos) })
+                return res.send({ status: 0, data: JSON.stringify(ListOfDemos) })
             }
             return res.send({ status: 1, data: JSON.stringify(ListOfDemos) })
         } catch (error) {
@@ -66,7 +66,7 @@ module.exports = function () {
             getDemo = await db.findSingleDocument("demo", { _id: updateStatus.id })
 
             if (!getDemo) {
-                return res.send({ status: 1, response: "No demo found" })
+                return res.send({ status: 0, response: "No demo found" })
             }
             await db.updateOneDocument("demo", { _id: getDemo._id }, { status: updateStatus.status })
 

@@ -11,7 +11,7 @@ module.exports = function () {
             let createPower = req.body, hashPass;
             createPower = createPower.data[0]
             if (req.userInfo.userRole !== 4) {
-                return res.send({ status: 1, response: "You're not allowded to perform the task" })
+                return res.send({ status: 0, response: "You're not allowded to perform the task" })
             }
             hashPass = await bcrypt.hash(createPower.password, 10)
             createPower.password = hashPass
@@ -31,7 +31,7 @@ module.exports = function () {
             employeeRegister = employeeRegister.data[0]
             const checkExist = await db.findSingleDocument("users", { email: employeeRegister.email })
             if (checkExist) {
-                return res.send({ status: 1, response: "Employee with emailId already exist" })
+                return res.send({ status: 0, response: "Employee with emailId already exist" })
             }
             hashPass = await bcrypt.hash(employeeRegister.password, 10)
             employeeRegister.password = hashPass
@@ -50,15 +50,17 @@ module.exports = function () {
             userLogin = userLogin.data[0]
             checkExist = await db.findSingleDocument("users", { email: userLogin.email })
             if (!checkExist) {
-                return res.send({ status: 1, response: "User need to register first in order to login" })
+                return res.send({ status: 0, response: "User need to register first in order to login" })
             }
             matchPass = await bcrypt.compare(userLogin.password, checkExist.password)
             if (matchPass === false) {
-                return res.send({ status: 1, response: "Password doesn't match" })
+                return res.send({ status: 0, response: "Password doesn't match" })
             }
-            // privateKey = fs.readFileSync("../config/privateKey.key");
-            // token = jwt.sign({ user: { userId: checkExist._id, userRole: checkExist.role, username: checkExist.username } }, privateKey, { algorithm: 'RS256', expiresIn: '2h' })
-            token = jwt.sign({ user: { userId: checkExist._id, userRole: checkExist.role, username: checkExist.username } }, process.env.JWT_SECRET, { expiresIn: "2h" })
+           
+            privateKey = fs.readFileSync("./config/privateKey.key");
+            token = jwt.sign({ user: { userId: checkExist._id, userRole: checkExist.role, username: checkExist.username } }, privateKey, { algorithm: 'RS256', expiresIn: '2h' })
+            res.setHeader("Authorization", "Bearer " + token)
+            // token = jwt.sign({ user: { userId: checkExist._id, userRole: checkExist.role, username: checkExist.username } }, process.env.JWT_SECRET, { expiresIn: "2h" })
             return res.send({ status: 1, response: "Logged successfully", data: token })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
@@ -74,13 +76,13 @@ module.exports = function () {
             getUser = await db.findSingleDocument("users", { _id: addToTeam.employeeId })
 
             if (req.userInfo.userRole !== 2) {
-                return res.send({ status: 1, response: "You're not an manager" })
+                return res.send({ status: 0, response: "You're not an manager" })
             }
             if (getUser.role !== 1) {
-                return res.send({ status: 1, response: "You can't assign" })
+                return res.send({ status: 0, response: "You can't assign" })
             }
             if (getUser.managedBy !== null) {
-                return res.send({ status: 1, response: `Manager already assigned to ${getUser._id}` })
+                return res.send({ status: 0, response: `Manager already assigned to ${getUser._id}` })
             }
             await db.updateOneDocument("users", { _id: getUser._id }, { managedBy: req.userInfo.userId })
             return res.send({ status: 1, response: "Manager assigned" })
@@ -95,10 +97,10 @@ module.exports = function () {
         try {
             let getAllEmployees = await db.findDocuments("users", { role: 1 })
             if (req.userInfo.userRole === 1) {
-                return res.send({ status: 1, reponse: "Not authorized" })
+                return res.send({ status: 0, reponse: "Not authorized" })
             }
             if (getAllEmployees.length === 0) {
-                return res.send({ status: 1, data: JSON.stringify(getAllEmployees) })
+                return res.send({ status: 0, data: JSON.stringify(getAllEmployees) })
             }
             return res.send({ status: 1, data: JSON.stringify(getAllEmployees) })
         } catch (error) {
@@ -112,10 +114,10 @@ module.exports = function () {
         try {
             let getAllAdmins = await db.findDocuments("users", { role: 3 })
             if (req.userInfo.userRole !== 4) {
-                return res.send({ status: 1, reponse: "Not authorized" })
+                return res.send({ status: 0, reponse: "Not authorized" })
             }
             if (getAllAdmins.length === 0) {
-                return res.send({ status: 1, data: JSON.stringify(getAllAdmins) })
+                return res.send({ status: 0, data: JSON.stringify(getAllAdmins) })
             }
             return res.send({ status: 1, data: JSON.stringify(getAllAdmins) })
         } catch (error) {
@@ -128,10 +130,10 @@ module.exports = function () {
         try {
             let getAllManagers = await db.findDocuments("users", { role: 2 })
             if (req.userInfo.userRole !== 4) {
-                return res.send({ status: 1, reponse: "Not authorized" })
+                return res.send({ status: 0, reponse: "Not authorized" })
             }
             if (getAllManagers.length === 0) {
-                return res.send({ status: 1, data: JSON.stringify(getAllManagers) })
+                return res.send({ status: 0, data: JSON.stringify(getAllManagers) })
             }
             return res.send({ status: 1, data: JSON.stringify(getAllManagers) })
         } catch (error) {

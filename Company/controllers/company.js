@@ -10,7 +10,7 @@ module.exports = function () {
             
             checkIfExist = await db.findSingleDocument("company",{companyName:addCompany.companyName})
             if(checkIfExist){
-                return res.send({status:1, response:"Comapny with same name already exist"})
+                return res.send({status:0, response:"Comapny with same name already exist"})
             }
             if (req.userInfo.userRole !== 2) {
                 return res.send({ status: 0, response: "You're not an manager" })
@@ -28,7 +28,7 @@ module.exports = function () {
         try {
             let ListOfCompanies = await db.findDocuments("company")
             if (ListOfCompanies.length === 0) {
-                return res.send({ status: 1, data: JSON.stringify(ListOfCompanies) })
+                return res.send({ status: 0, data: JSON.stringify(ListOfCompanies) })
             }
             return res.send({ status: 1, data: JSON.stringify(ListOfCompanies) })
         } catch (error) {
