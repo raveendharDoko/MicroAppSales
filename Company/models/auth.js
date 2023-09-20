@@ -13,8 +13,7 @@ const verifyUser = async (req, res, next) => {
             publicKey = fs.readFileSync("./config/publicKey.key")
             
             getPayload = jwt.verify(token, publicKey,{algorithms:["RS256"]})
-            req.userInfo = getPayload.user
-            console.log(req.userInfo);
+            req.userInfo = getPayload
             next()
         }
     } catch (error) {
