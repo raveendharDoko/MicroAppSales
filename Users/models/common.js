@@ -1,23 +1,23 @@
-const authManager = ()=>{
+const authManager = () => {
     return (req, res, next) => {
-        const roleCheck = req.userInfo.userRole;
+        const roleCheck = req.userInfo.role;
         if (roleCheck === 2) {
-          next();
+            next();
         } else {
-          res.send({status:0, response:'Permission Denied'});
+            res.send({ status: 0, response: 'Permission Denied' });
         }
-      };
+    };
 }
 
-const authSuperAdmin = ()=>{
+const authSuperAdmin = () => {
     return (req, res, next) => {
-        const roleCheck = req.userInfo.userRole;
+        const roleCheck = req.userInfo.role;
         if (roleCheck === 4) {
-          next();
+            next();
         } else {
-          res.send({status:0, response:'Permission Denied'});
+            res.send({ status: 0, response: 'Permission Denied' });
         }
-      };
+    };
 }
 
-module.exports = {authSuperAdmin,authManager}
+module.exports = { authSuperAdmin, authManager }

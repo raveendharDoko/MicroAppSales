@@ -55,9 +55,9 @@ module.exports = function () {
             }
 
             privateKey = fs.readFileSync("./config/privateKey.key");
-            token = jwt.sign({ user: { userId: checkExist._id, userRole: checkExist.role, username: checkExist.username } }, privateKey, { algorithm: 'RS256', expiresIn: '2h' })
+            token = jwt.sign({ userId: checkExist._id, role: checkExist.role } , privateKey, { algorithm: 'RS256', expiresIn: '2h' })
             // res.setHeader("Authorization", "Bearer " + token)
-            // token = jwt.sign({ user: { userId: checkExist._id, userRole: checkExist.role, username: checkExist.username } }, process.env.JWT_SECRET, { expiresIn: "2h" })
+            // token = jwt.sign({ user: { userId: checkExist._id, role: checkExist.role, username: checkExist.username } }, process.env.JWT_SECRET, { expiresIn: "2h" })
             return res.send({ status: 1, response: "Logged successfully", data: token })
         } catch (error) {
             return res.send({ status: 0, response: error.message })

@@ -6,15 +6,31 @@ module.exports = function () {
 
     demoController.assignDemo = async (req, res) => {
         try {
-            let assignDemo = req.body,getName;
+            let assignDemo = req.body, checkIfAssigned, id, getSales,getDemo;
             assignDemo = assignDemo.data[0]
             checkIfAssigned = await db.findSingleDocument("demo", { callId: assignDemo.callId })
             // getName = Demo.find().populate(ch)
             if (checkIfAssigned) {
                 return res.send({ status: 0, response: `This demo is already assigned to ${checkIfAssigned.assignedTo} ` })
             }
+            id = new mongoose.Types.ObjectId(assignDemo.callId)
+           
             assignDemo.assignedBy = req.userInfo.userId
-            await db.insertSingleDocument("demo", assignDemo)
+            getDemo = await db.insertSingleDocument("demo", assignDemo)
+            getSales = await Demo.aggregate([
+                {$match : {callId:getDemo.callId}},
+                {
+                    $lookup: {
+                        from: "salescalls",
+                        localField: "callId",
+                        foreignField: "_id",
+                        as: "getCall",
+                    },
+                },
+                
+                // { $set: { "getCall.status":6 }}
+            ])
+            getSales.getCall.map((data)=>console.log(data))
             return res.send({ status: 1, response: "Call assigned" })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
@@ -154,11 +170,11 @@ module.exports = function () {
         }
     }
 
-   
-    
+
+
     demoController.getDemoById = async (req, res) => {
         try {
-            let demoId = req.body, getDemo, id,info;
+            let demoId = req.body, getDemo, id, info;
             demoId = demoId.data[0]
             id = new mongoose.Types.ObjectId(demoId.id)
             getDemo = await Demo.aggregate([
@@ -205,7 +221,7 @@ module.exports = function () {
                 obj.remarks = call.remarks
                 return obj
             })
-            return res.send({ status: 1, data:JSON.stringify(info)  })
+            return res.send({ status: 1, data: JSON.stringify(info) })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }

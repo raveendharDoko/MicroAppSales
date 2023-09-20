@@ -12,7 +12,7 @@ module.exports = function () {
             if(checkIfExist){
                 return res.send({status:0, response:"Comapny with same name already exist"})
             }
-            if (req.userInfo.userRole !== 2) {
+            if (req.userInfo.role !== 2) {
                 return res.send({ status: 0, response: "You're not an manager" })
             }
             await db.insertSingleDocument("company", addCompany)

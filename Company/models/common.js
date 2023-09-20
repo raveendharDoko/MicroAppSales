@@ -1,6 +1,6 @@
 const authManager = ()=>{
     return (req, res, next) => {
-        const roleCheck = req.userInfo.userRole;
+        const roleCheck = req.userInfo.role;
         if (roleCheck === 2) {
           next();
         } else {

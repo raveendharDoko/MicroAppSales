@@ -37,7 +37,6 @@ app.all('/user*', (req, res) => {
   } catch (error) {
     return res.send({ status: 0, response: error.message })
   }
-
 });
 
 // app.use(verifyToken)
@@ -47,7 +46,6 @@ app.all('/company*', (req, res) => {
   } catch (error) {
     return res.send({ status: 0, response: error.message })
   }
-
 });
 
 app.all('/salesCalls*', (req, res) => {

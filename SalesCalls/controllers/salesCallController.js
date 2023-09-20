@@ -10,7 +10,7 @@ module.exports = function () {
         try {
             let assignCall = req.body, checkIfAssigned;
             assignCall = assignCall.data[0]
-            if (req.userInfo.userRole !== 2) {
+            if (req.userInfo.role !== 2) {
                 return res.send({ status: 0, response: "You're not an manager" })
             }
             checkIfAssigned = await db.findSingleDocument("salesCall", { companyId: assignCall.companyId })
@@ -70,6 +70,7 @@ module.exports = function () {
         }
     }
 
+   
 
     salesControllers.updateReport = async (req, res) => {
         try {
