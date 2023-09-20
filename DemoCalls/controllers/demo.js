@@ -267,7 +267,7 @@ module.exports = function () {
                 return obj
             })
 
-            return res.send({status:1, response:JSON.stringify(info)})
+            return res.send({status:1, data: JSON.stringify(info)})
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }
