@@ -27,7 +27,7 @@ app.use(
 );
 
 const userService = httpProxy.createProxyServer({ target: 'http://localhost:2000' });
-const companyService = httpProxy.createProxyServer({ target: 'http://localhost:3000' });
+const companyService = httpProxy.createProxyServer({ target: 'http://localhost:3010' });
 const salesCallService = httpProxy.createProxyServer({ target: 'http://localhost:4000' });
 const demoCallService = httpProxy.createProxyServer({ target: 'http://localhost:5000' });
 
