@@ -21,7 +21,7 @@ const demoAssignSchema = mongoose.Schema({
     remarks:[
         {
             _id:false,
-            enteredDate: { type: String, default: Date.now() },
+            enteredDate: { type: Date, default: Date.now() },
             data: { type: String }
         }
     ],
