@@ -81,7 +81,7 @@ module.exports = function () {
                 if (!getCall) {
                     return res.send({ status: 0, response: "No sales call found" })
                 }
-            await db.updateOneDocument("salesCall", { _id: getCall._id }, { $push: { remarks: [{ data: updateReport.report }] },status:updateReport.status })
+            await db.updateOneDocument("salesCall", { _id: getCall._id }, { $push: { remarks: [{ data: updateReport.remark }] },status:updateReport.status })
             return res.send({ status: 1, response: "Report updated" })
         } catch (error) {
             return res.send({ status: 0, response: error.message })

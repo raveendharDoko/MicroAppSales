@@ -23,7 +23,7 @@ module.exports = function () {
     validator.updateReport = [
         check("data").notEmpty().withMessage("Data cannot be empty"),
         check("data.*.callId").notEmpty().withMessage("callId is required field"),
-        check("data.*.report").notEmpty().withMessage("Report is required field"),
+        check("data.*.remark").notEmpty().withMessage("Remark is required field"),
 
         (req, res, next) => {
             const errors = validationResult(req).array();

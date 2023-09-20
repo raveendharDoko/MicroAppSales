@@ -65,13 +65,17 @@ module.exports = function () {
     }
 
 
-    userControllers.unAssignedEmployee = async(req,res)=>{
+    userControllers.unAssignedEmployee = async (req, res) => {
         try {
             let unAssignedEmployee;
-            unAssignedEmployee = await db.findDocuments("users", { managedBy: req.userInfo.userId })
- 
+            unAssignedEmployee = await db.findDocuments("users", {role:1, managedBy: null })
+            if (unAssignedEmployee.length === 0) {
+                return res.send({ status: 1, data: JSON.stringify(unAssignedEmployee)  })
+            }
+            return res.send({ status: 1, data:  JSON.stringify(unAssignedEmployee)  })
+
         } catch (error) {
-            
+            return res.send({ status: 0, response: error.message })
         }
     }
 
@@ -80,9 +84,6 @@ module.exports = function () {
             let addToTeam = req.body, getUser;
             addToTeam = addToTeam.data[0]
             getUser = await db.findDocuments("users", { _id: addToTeam.employeeId })
-            // if (getUser.managedBy !== null) {
-            //     return res.send({ status: 0, response: `Manager already assigned to ${getUser._id}` })
-            // }
             await db.updateManyDocuments("users", { _id: addToTeam.employeeId }, { managedBy: req.userInfo.userId })
             return res.send({ status: 1, response: "Manager assigned" })
         } catch (error) {
