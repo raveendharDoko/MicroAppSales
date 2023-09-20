@@ -24,23 +24,14 @@ app.options("*", cors());
 app.use(
 
     cors({
-
       origin: "*",
-
       methods: ["GET", "POST"],
-
       allowedHeaders: [
-
         "Origin",
-
         "X-Requested-with",
-
         "Content-Type",
-
         "Accept",
-
         "Authorization",
-
       ],
 
     })

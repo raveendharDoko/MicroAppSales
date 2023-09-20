@@ -6,31 +6,14 @@ module.exports = function () {
 
     demoController.assignDemo = async (req, res) => {
         try {
-            let assignDemo = req.body, checkIfAssigned, id, getSales,getDemo;
+            let assignDemo = req.body, checkIfAssigned;
             assignDemo = assignDemo.data[0]
             checkIfAssigned = await db.findSingleDocument("demo", { callId: assignDemo.callId })
-            // getName = Demo.find().populate(ch)
             if (checkIfAssigned) {
                 return res.send({ status: 0, response: `This demo is already assigned to ${checkIfAssigned.assignedTo} ` })
             }
-            id = new mongoose.Types.ObjectId(assignDemo.callId)
-           
             assignDemo.assignedBy = req.userInfo.userId
-            getDemo = await db.insertSingleDocument("demo", assignDemo)
-            getSales = await Demo.aggregate([
-                {$match : {callId:getDemo.callId}},
-                {
-                    $lookup: {
-                        from: "salescalls",
-                        localField: "callId",
-                        foreignField: "_id",
-                        as: "getCall",
-                    },
-                },
-                
-                // { $set: { "getCall.status":6 }}
-            ])
-            getSales.getCall.map((data)=>console.log(data))
+            await db.insertSingleDocument("demo", assignDemo)
             return res.send({ status: 1, response: "Call assigned" })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
@@ -59,7 +42,6 @@ module.exports = function () {
 
     demoController.getMyDemo = async (req, res) => {
         try {
-            // let ListOfDemos = await db.findDocuments("demo",{assignedTo:req.userInfo.userId})
             let id, getAssignedCalls, info;
             id = new mongoose.Types.ObjectId(req.userInfo.userId)
             getAssignedCalls = await Demo.aggregate([
@@ -171,7 +153,6 @@ module.exports = function () {
     }
 
 
-
     demoController.getDemoById = async (req, res) => {
         try {
             let demoId = req.body, getDemo, id, info;
@@ -227,6 +208,70 @@ module.exports = function () {
         }
     }
 
+
+    demoController.getManagerDemo = async(req,res)=>{
+        try {
+            let id,getDemo,info;
+            id = new mongoose.Types.ObjectId(req.userInfo.userId)
+            getDemo = await Demo.aggregate([
+                {
+                    $lookup: {
+                        from: "salescalls",
+                        localField: "callId",
+                        foreignField: "_id",
+                        as: "getCall",
+                    },
+                },
+                { $match: { "getCall.assignedBy": id } },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "assignedTo",
+                        foreignField: "_id",
+                        as: "getDemoUser",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "assignedBy",
+                        foreignField: "_id",
+                        as: "getSalesUser",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "companies",
+                        localField: "getCall.companyId",
+                        foreignField: "_id",
+                        as: "company",
+                    },
+                },
+                { $project: { callId: 1, assignedTo: 1, assignedBy: 1, remarks: 1, status: 1, createdAt: 1, "getDemoUser.username": 1, "getSalesUser.username":1, "company.companyName":1 } }
+            ])
+            if (getDemo.length === 0) {
+                return res.send({ status: 1, data: JSON.stringify(getDemo) })
+            }
+            info = getDemo.map((call) => {
+                let obj = {}
+                obj.callId = call._id
+                obj.salesCallId = call.callId
+                obj.assignedOn = call.createdAt
+                obj.assignedTo = call.assignedTo
+                obj.assignedBy = call.assignedBy
+                obj.status = call.status
+                obj.companyName = call.company[0].companyName
+                obj.salesCallAssignedTo = call.getSalesUser[0].username
+                obj.demoForwardedTo = call.getDemoUser[0].username
+                obj.remarks = call.remarks
+                return obj
+            })
+
+            return res.send({status:1, response:JSON.stringify(info)})
+        } catch (error) {
+            return res.send({ status: 0, response: error.message })
+        }
+    }
 
     return demoController
 }

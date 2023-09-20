@@ -11,7 +11,6 @@ const verifyUser = async (req, res, next) => {
         if (authHeader && authHeader.startsWith("Bearer")) {
             token = authHeader.split(" ")[1]
             publicKey = fs.readFileSync("./config/publicKey.key")
-            
             getPayload = jwt.verify(token, publicKey,{algorithms:["RS256"]})
             req.userInfo = getPayload
             next()

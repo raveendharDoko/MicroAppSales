@@ -14,12 +14,10 @@ module.exports = function () {
             createPower.password = hashPass
             await db.insertSingleDocument("users", createPower)
             return res.send({ status: 1, response: "Role created" })
-
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }
     }
-
 
 
     userControllers.employeeRegister = async (req, res) => {
@@ -40,7 +38,6 @@ module.exports = function () {
     }
 
 
-
     userControllers.login = async (req, res) => {
         try {
             let userLogin = req.body, matchPass, token, checkExist, privateKey;
@@ -53,7 +50,6 @@ module.exports = function () {
             if (matchPass === false) {
                 return res.send({ status: 0, response: "Password doesn't match" })
             }
-
             privateKey = fs.readFileSync("./config/privateKey.key");
             token = jwt.sign({ userId: checkExist._id, role: checkExist.role } , privateKey, { algorithm: 'RS256', expiresIn: '2h' })
             // res.setHeader("Authorization", "Bearer " + token)
@@ -79,18 +75,18 @@ module.exports = function () {
         }
     }
 
+
     userControllers.createRelationship = async (req, res) => {
         try {
-            let addToTeam = req.body, getUser;
+            let addToTeam = req.body;
             addToTeam = addToTeam.data[0]
-            getUser = await db.findDocuments("users", { _id: addToTeam.employeeId })
+            await db.findDocuments("users", { _id: addToTeam.employeeId })
             await db.updateManyDocuments("users", { _id: addToTeam.employeeId }, { managedBy: req.userInfo.userId })
             return res.send({ status: 1, response: "Manager assigned" })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }
     }
-
 
 
     userControllers.getAllEmployees = async (req, res) => {
@@ -104,7 +100,6 @@ module.exports = function () {
             return res.send({ status: 0, response: error.message })
         }
     }
-
 
 
     userControllers.getAllAdmins = async (req, res) => {
@@ -132,6 +127,7 @@ module.exports = function () {
         }
     }
 
+    
     userControllers.getYourEmployees = async (req, res) => {
         try {
             let getUsers;

@@ -75,7 +75,6 @@ module.exports = function () {
     salesControllers.updateReport = async (req, res) => {
         try {
             let updateReport = req.body, getCall;
-
             updateReport = updateReport.data[0]
             getCall = await SalesCalls.findById({ _id: updateReport.callId })
             if (getCall.assignedTo = req.userInfo.userId)
@@ -163,6 +162,14 @@ module.exports = function () {
                     $lookup: {
                         from: "users",
                         localField: "assignedBy",
+                        foreignField: "_id",
+                        as: "getManager",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "assignedTo",
                         foreignField: "_id",
                         as: "getManager",
                     },
