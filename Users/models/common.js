@@ -4,7 +4,7 @@ const authManager = ()=>{
         if (roleCheck === 2) {
           next();
         } else {
-          res.send('Permission Denied');
+          res.send({status:0, response:'Permission Denied'});
         }
       };
 }
@@ -15,7 +15,7 @@ const authSuperAdmin = ()=>{
         if (roleCheck === 4) {
           next();
         } else {
-          res.send('Permission Denied');
+          res.send({status:0, response:'Permission Denied'});
         }
       };
 }

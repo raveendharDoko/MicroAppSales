@@ -171,19 +171,63 @@ module.exports = function () {
         }
     }
 
-    demoController.getDemoById = async(req,res)=>{
+   
+    
+    demoController.getDemoById = async (req, res) => {
         try {
-            let callId = req.body,getDemo;
-            callId = callId.data[0]
-            getDemo = await db.findSingleDocument("demo",{_id:callId.id})
-            if(!getDemo){
+            let demoId = req.body, getDemo, id,info;
+            demoId = demoId.data[0]
+            id = new mongoose.Types.ObjectId(demoId.id)
+            getDemo = await Demo.aggregate([
+                { $match: { _id: id } },
+                {
+                    $lookup: {
+                        from: "salescalls",
+                        localField: "callId",
+                        foreignField: "_id",
+                        as: "getCall",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "assignedBy",
+                        foreignField: "_id",
+                        as: "getUser",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "companies",
+                        localField: "getCall.companyId",
+                        foreignField: "_id",
+                        as: "company",
+                    },
+                },
+                { $project: { companyId: 1, assignedTo: 1, assignedBy: 1, remarks: 1, status: 1, assignedDate: 1, "company.companyName": 1, "getUser.username": 1 } }
+            ])
+            if (!getDemo) {
                 return res.send({ status: 0, response: "No calls found" })
             }
-            return res.send({status:1, data:JSON.stringify(getDemo)})
+            info = getDemo.map((call) => {
+                let obj = {}
+                obj.callId = call._id
+                obj.companyId = call.companyId
+                obj.assignedOn = call.assignedDate
+                obj.assignedTo = call.assignedTo
+                obj.assignedBy = call.assignedBy
+                obj.status = call.status
+                obj.companyName = call.company[0].companyName
+                obj.assignedByName = call.getUser[0].username
+                obj.remarks = call.remarks
+                return obj
+            })
+            return res.send({ status: 1, data:JSON.stringify(info)  })
         } catch (error) {
-            
+            return res.send({ status: 0, response: error.message })
         }
     }
+
 
     return demoController
 }

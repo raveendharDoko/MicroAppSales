@@ -48,7 +48,7 @@ module.exports = function () {
                         as: "getManager",
                     },
                 },
-                { $project: { _id: 1, companyId: 1, status: 1, assignedDate: 1, "getCompany.companyName": 1, "getManager.username": 1, "getManager._id":1 } }
+                { $project: { _id: 1, companyId: 1, status: 1, assignedDate: 1, "getCompany.companyName": 1, "getManager.username": 1, "getManager._id": 1 } }
             ])
 
             if (getCompany.length === 0) {
@@ -113,7 +113,9 @@ module.exports = function () {
                 },
                 { $project: { remarks: 1, status: 1, assignedDate: 1, "getCompany.companyName": 1, "getUser.username": 1 } }
             ])
-
+            if (getAssignedCalls.length === 0) {
+                return res.send({ status: 1, data: JSON.stringify(getAssignedCalls) })
+            }
             info = getAssignedCalls.map((call) => {
                 let obj = {}
                 obj.callId = call._id
@@ -125,10 +127,8 @@ module.exports = function () {
                 obj.remarks = call.remarks
                 return obj
             })
-            
-            if (getAssignedCalls.length === 0) {
-                return res.send({ status: 1, data: JSON.stringify(getAssignedCalls) })
-            }
+
+
             return res.send({ status: 1, data: JSON.stringify(info) })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
@@ -157,17 +157,50 @@ module.exports = function () {
         }
     }
 
-    salesControllers.getCallById = async(req,res)=>{
+    salesControllers.getCallById = async (req, res) => {
         try {
-            let callId = req.body,getCall;
+            let callId = req.body, getCall, id;
             callId = callId.data[0]
-            getCall = await db.findSingleDocument("salesCall",{_id:callId.id})
-            if(!getCall){
+            id = new mongoose.Types.ObjectId(callId.id)
+            getCall = await SalesCalls.aggregate([
+                { $match: { _id: id } },
+                {
+                    $lookup: {
+                        from: "companies",
+                        localField: "companyId",
+                        foreignField: "_id",
+                        as: "getCompany",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "assignedBy",
+                        foreignField: "_id",
+                        as: "getManager",
+                    },
+                },
+                { $project: { companyId: 1, assignedTo: 1, assignedBy: 1, remarks: 1, status: 1, assignedDate: 1, "getCompany.companyName": 1, "getManager.username": 1 } }
+            ])
+            if (!getCall) {
                 return res.send({ status: 0, response: "No calls found" })
             }
-            return res.send({status:1, data:JSON.stringify(getCall)})
+            info = getCall.map((call) => {
+                let obj = {}
+                obj.callId = call._id
+                obj.companyId = call.companyId
+                obj.assignedOn = call.assignedDate
+                obj.assignedTo = call.assignedTo
+                obj.assignedBy = call.assignedBy
+                obj.status = call.status
+                obj.companyName = call.getCompany[0].companyName
+                obj.assignedByName = call.getManager[0].username
+                obj.remarks = call.remarks
+                return obj
+            })
+            return res.send({ status: 1, data: JSON.stringify(info) })
         } catch (error) {
-            
+            return res.send({ status: 0, response: error.message })
         }
     }
 
