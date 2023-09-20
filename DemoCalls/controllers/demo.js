@@ -6,9 +6,10 @@ module.exports = function () {
 
     demoController.assignDemo = async (req, res) => {
         try {
-            let assignDemo = req.body
+            let assignDemo = req.body,getName;
             assignDemo = assignDemo.data[0]
             checkIfAssigned = await db.findSingleDocument("demo", { callId: assignDemo.callId })
+            // getName = Demo.find().populate(ch)
             if (checkIfAssigned) {
                 return res.send({ status: 0, response: `This demo is already assigned to ${checkIfAssigned.assignedTo} ` })
             }

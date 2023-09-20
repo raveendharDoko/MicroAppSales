@@ -17,7 +17,7 @@ userRouter.get("/getYourEmployees",authManager(), userControllers.getYourEmploye
 userRouter.post("/createNetwork", authManager(), validate.createNetwork, userControllers.createRelationship) // adding team members by manager
 userRouter.get("/getAllAdmin",authSuperAdmin(), userControllers.getAllAdmins)
 userRouter.get("/getAllManager",authSuperAdmin(), userControllers.getAllManagers)
-userRouter.get("/getAllEmployees",authManager(), userControllers.getAllEmployees)
+userRouter.get("/getAllEmployees", userControllers.getAllEmployees)
 userRouter.get("/unAssignedEmployee",authManager(),userControllers.unAssignedEmployee)
 
 

@@ -68,11 +68,11 @@ module.exports = function () {
     userControllers.unAssignedEmployee = async (req, res) => {
         try {
             let unAssignedEmployee;
-            unAssignedEmployee = await db.findDocuments("users", {role:1, managedBy: null })
+            unAssignedEmployee = await db.findDocuments("users", { role: 1, managedBy: null })
             if (unAssignedEmployee.length === 0) {
-                return res.send({ status: 1, data: JSON.stringify(unAssignedEmployee)  })
+                return res.send({ status: 1, data: JSON.stringify(unAssignedEmployee) })
             }
-            return res.send({ status: 1, data:  JSON.stringify(unAssignedEmployee)  })
+            return res.send({ status: 1, data: JSON.stringify(unAssignedEmployee) })
 
         } catch (error) {
             return res.send({ status: 0, response: error.message })
