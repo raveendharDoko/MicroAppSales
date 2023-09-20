@@ -30,7 +30,7 @@ module.exports = function () {
                 if (!getCall) {
                     return res.send({ status: 0, response: "No sales call found" })
                 }
-            await db.updateOneDocument("demo", { _id: getCall._id }, { $push: { remarks: [{ data: updateReport.report }] } })
+            await db.updateOneDocument("demo", { _id: getCall._id }, { $push: { remarks: [{ data: updateReport.report }] }, status: updateReport.status })
             return res.send({ status: 1, response: "Report updated" })
 
         } catch (error) {
@@ -100,24 +100,6 @@ module.exports = function () {
     // status 4 = Demo completed and customer likes to move forward
     // status 5 = Demo completed and customer not moving forward
 
-
-    demoController.updateStatus = async (req, res) => {
-        try {
-            let updateStatus = req.body, getDemo;
-            updateStatus = updateStatus.data[0]
-            getDemo = await db.findSingleDocument("demo", { _id: updateStatus.id })
-
-            if (!getDemo) {
-                return res.send({ status: 0, response: "No demo found" })
-            }
-            await db.updateOneDocument("demo", { _id: getDemo._id }, { status: updateStatus.status })
-
-            return res.send({ status: 1, response: "Status updated" })
-
-        } catch (error) {
-            return res.send({ status: 0, response: error.message })
-        }
-    }
 
     demoController.getAllCalls = async (req, res) => {
         try {

@@ -65,6 +65,15 @@ module.exports = function () {
     }
 
 
+    userControllers.unAssignedEmployee = async(req,res)=>{
+        try {
+            let unAssignedEmployee;
+            unAssignedEmployee = await db.findDocuments("users", { managedBy: req.userInfo.userId })
+ 
+        } catch (error) {
+            
+        }
+    }
 
     userControllers.createRelationship = async (req, res) => {
         try {

@@ -81,7 +81,7 @@ module.exports = function () {
                 if (!getCall) {
                     return res.send({ status: 0, response: "No sales call found" })
                 }
-            await db.updateOneDocument("salesCall", { _id: getCall._id }, { $push: { remarks: [{ data: updateReport.report }] } })
+            await db.updateOneDocument("salesCall", { _id: getCall._id }, { $push: { remarks: [{ data: updateReport.report }] },status:updateReport.status })
             return res.send({ status: 1, response: "Report updated" })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
@@ -142,20 +142,6 @@ module.exports = function () {
     // status 5 = Call attended and conveienced for demo
     // status 6 = Call attended and customer not showing interest
 
-    salesControllers.updateStatus = async (req, res) => {
-        try {
-            let updateStatus = req.body, getCall;
-            updateStatus = updateStatus.data[0]
-            getCall = await db.findSingleDocument("salesCall", { _id: updateStatus.id })
-            if (!getCall) {
-                return res.send({ status: 0, response: "No calls found" })
-            }
-            await db.updateOneDocument("salesCall", { _id: updateStatus.id }, { status: updateStatus.status })
-            return res.send({ status: 1, response: "Status updated" })
-        } catch (error) {
-            return res.send({ status: 0, response: error.message })
-        }
-    }
 
     salesControllers.getCallById = async (req, res) => {
         try {
