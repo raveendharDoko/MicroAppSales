@@ -10,9 +10,6 @@ module.exports = function () {
         try {
             let createPower = req.body, hashPass;
             createPower = createPower.data[0]
-            if (req.userInfo.userRole !== 4) {
-                return res.send({ status: 0, response: "You're not allowded to perform the task" })
-            }
             hashPass = await bcrypt.hash(createPower.password, 10)
             createPower.password = hashPass
             await db.insertSingleDocument("users", createPower)
@@ -74,12 +71,6 @@ module.exports = function () {
             let addToTeam = req.body, getUser;
             addToTeam = addToTeam.data[0]
             getUser = await db.findDocuments("users", { _id: addToTeam.employeeId })
-            // if (req.userInfo.userRole !== 2) {
-            //     return res.send({ status: 0, response: "You're not an manager" })
-            // }
-            // if (getUser.role !== 1) {
-            //     return res.send({ status: 0, response: "You can't assign" })
-            // }
             // if (getUser.managedBy !== null) {
             //     return res.send({ status: 0, response: `Manager already assigned to ${getUser._id}` })
             // }
@@ -95,9 +86,6 @@ module.exports = function () {
     userControllers.getAllEmployees = async (req, res) => {
         try {
             let getAllEmployees = await db.findDocuments("users", { role: 1 })
-            if (req.userInfo.userRole === 1) {
-                return res.send({ status: 0, reponse: "Not authorized" })
-            }
             if (getAllEmployees.length === 0) {
                 return res.send({ status: 1, data: JSON.stringify(getAllEmployees) })
             }
@@ -112,9 +100,6 @@ module.exports = function () {
     userControllers.getAllAdmins = async (req, res) => {
         try {
             let getAllAdmins = await db.findDocuments("users", { role: 3 })
-            if (req.userInfo.userRole !== 4) {
-                return res.send({ status: 0, reponse: "Not authorized" })
-            }
             if (getAllAdmins.length === 0) {
                 return res.send({ status: 1, data: JSON.stringify(getAllAdmins) })
             }
@@ -128,9 +113,6 @@ module.exports = function () {
     userControllers.getAllManagers = async (req, res) => {
         try {
             let getAllManagers = await db.findDocuments("users", { role: 2 })
-            if (req.userInfo.userRole !== 4) {
-                return res.send({ status: 0, reponse: "Not authorized" })
-            }
             if (getAllManagers.length === 0) {
                 return res.send({ status: 1, data: JSON.stringify(getAllManagers) })
             }

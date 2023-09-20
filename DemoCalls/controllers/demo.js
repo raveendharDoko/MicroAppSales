@@ -171,5 +171,19 @@ module.exports = function () {
         }
     }
 
+    demoController.getDemoById = async(req,res)=>{
+        try {
+            let callId = req.body,getDemo;
+            callId = callId.data[0]
+            getDemo = await db.findSingleDocument("demo",{_id:callId.id})
+            if(!getDemo){
+                return res.send({ status: 0, response: "No calls found" })
+            }
+            return res.send({status:1, data:JSON.stringify(getDemo)})
+        } catch (error) {
+            
+        }
+    }
+
     return demoController
 }

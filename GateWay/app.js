@@ -7,33 +7,24 @@ const app = express();
 
 app.options("*", cors());
 
- 
+
 
 app.use(
 
-    cors({
+  cors({
+    origin: "*",
+    methods: ["GET", "POST"],
+    allowedHeaders: [
+      "Origin",
+      "X-Requested-with",
+      "Content-Type",
+      "Accept",
+      "Authorization",
+    ],
 
-      origin: "*",
+  })
 
-      methods: ["GET", "POST"],
-
-      allowedHeaders: [
-
-        "Origin",
-
-        "X-Requested-with",
-
-        "Content-Type",
-
-        "Accept",
-
-        "Authorization",
-
-      ],
-
-    })
-
-  );
+);
 
 const userService = httpProxy.createProxyServer({ target: 'http://localhost:2000' });
 const companyService = httpProxy.createProxyServer({ target: 'http://localhost:3000' });
@@ -41,22 +32,40 @@ const salesCallService = httpProxy.createProxyServer({ target: 'http://localhost
 const demoCallService = httpProxy.createProxyServer({ target: 'http://localhost:5000' });
 
 app.all('/user*', (req, res) => {
+  try {
     userService.web(req, res);
+  } catch (error) {
+    return res.send({ status: 0, response: error.message })
+  }
+
 });
 
 // app.use(verifyToken)
 app.all('/company*', (req, res) => {
+  try {
     companyService.web(req, res);
+  } catch (error) {
+    return res.send({ status: 0, response: error.message })
+  }
+
 });
 
 app.all('/salesCalls*', (req, res) => {
+  try {
     salesCallService.web(req, res);
+  } catch (error) {
+    return res.send({ status: 0, response: error.message })
+  }
 });
 
 app.all('/demoCalls*', (req, res) => {
+  try {
     demoCallService.web(req, res);
+  } catch (error) {
+    return res.send({ status: 0, response: error.message })
+  }
 });
 
 app.listen(process.env.PORT, () => {
-    console.log(`Gateway is running on port ${process.env.PORT}`);
+  console.log(`Gateway is running on port ${process.env.PORT}`);
 });

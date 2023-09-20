@@ -11,5 +11,6 @@ salesCallRouter.get("/allAssignedCall", salesCallController.getAllCalls) // assi
 salesCallRouter.get("/getUserCalls", salesCallController.yourCallList)
 salesCallRouter.post("/updateReport", validate.updateReport, salesCallController.updateReport) // updating the detailed report of each attended calls in a stretch of followups
 salesCallRouter.post("/changeStatus", validate.changeStatus, salesCallController.updateStatus)  // updating the status of call attempt
+salesCallRouter.post("/getCallById",salesCallController.getCallById)
 
 module.exports = salesCallRouter

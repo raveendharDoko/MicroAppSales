@@ -12,6 +12,7 @@ demoCallRouter.post("/updateReport",validate.updateReport, demoController.update
 demoCallRouter.get("/assignedDemos",demoController.getAllCalls)
 demoCallRouter.get("/getMyDemo", demoController.getMyDemo)
 demoCallRouter.post("/updateStatus",validate.changeStatus, demoController.updateStatus)
+demoCallRouter.post("/getDemoById",demoController.getDemoById)
 
 
 module.exports = demoCallRouter

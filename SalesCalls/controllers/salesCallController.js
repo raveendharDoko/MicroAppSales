@@ -40,7 +40,15 @@ module.exports = function () {
                         as: "getCompany",
                     },
                 },
-                { $project: { _id: 1, companyId: 1, status: 1, assignedDate: 1, "getCompany.companyId": 1, "getCompany.contact": 1 } }
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "assignedBy",
+                        foreignField: "_id",
+                        as: "getManager",
+                    },
+                },
+                { $project: { _id: 1, companyId: 1, status: 1, assignedDate: 1, "getCompany.companyName": 1, "getManager.username": 1, "getManager._id":1 } }
             ])
 
             if (getCompany.length === 0) {
@@ -49,13 +57,13 @@ module.exports = function () {
             let info = getCompany.map((call) => {
                 let obj = {}
                 obj.callId = call._id
-                obj.companyId = call.companyId
+                obj.assignedId = call.getManager[0]._id
+                obj.companyName = call.getCompany[0].companyName
                 obj.assignedOn = call.assignedDate
                 obj.status = call.status
-                obj.companyNumber = call.getCompany[0].contact
+                obj.assignedBy = call.getManager[0].username
                 return obj
             })
-
             return res.send({ status: 1, data: JSON.stringify(info) })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
@@ -146,6 +154,20 @@ module.exports = function () {
             return res.send({ status: 1, response: "Status updated" })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
+        }
+    }
+
+    salesControllers.getCallById = async(req,res)=>{
+        try {
+            let callId = req.body,getCall;
+            callId = callId.data[0]
+            getCall = await db.findSingleDocument("salesCall",{_id:callId.id})
+            if(!getCall){
+                return res.send({ status: 0, response: "No calls found" })
+            }
+            return res.send({status:1, data:JSON.stringify(getCall)})
+        } catch (error) {
+            
         }
     }
 
