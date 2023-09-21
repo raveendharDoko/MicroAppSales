@@ -9,7 +9,11 @@ module.exports = function () {
             addCompany = addCompany.data[0]
 
             checkIfExist = await db.findSingleDocument("company", { companyName: addCompany.companyName })
-            if (checkIfExist) {
+            if (!checkIfExist) {
+                await db.insertSingleDocument("company", addCompany)
+                return res.send({ status: 1, response: "Company created" })
+            }
+            if (checkIfExist.status !== 0) {
                 return res.send({ status: 0, response: "Comapny with same name already exist" })
             }
             await db.insertSingleDocument("company", addCompany)
@@ -35,27 +39,27 @@ module.exports = function () {
 
     companyControllers.getUnAssignedCompanies = async (req, res) => {
         try {
-            let unAssigned, ListOfCompanies;
-            ListOfCompanies = await db.findDocuments("company");
+            let  ListOfCompanies;
+            ListOfCompanies = await db.findDocuments("company",{status:1});
             if (ListOfCompanies.length === 0) {
                 return res.send({ status: 1, data: JSON.stringify(ListOfCompanies) })
             }
-            unAssigned = await Company.aggregate([
-                {
-                    $lookup: {
-                        from: "salescalls",
-                        localField: "_id",
-                        foreignField: "companyId",
-                        as: "getCompany",
-                    },
-                },
-            ])
-            if (unAssigned.length === 0) {
-                return res.send({ status: 1, data: JSON.stringify(unAssigned) })
-            }
-            unAssigned = unAssigned.filter((company) => company.getCompany.length === 0)
+            // unAssigned = await Company.aggregate([
+            //     {
+            //         $lookup: {
+            //             from: "salescalls",
+            //             localField: "_id",
+            //             foreignField: "companyId",
+            //             as: "getCompany",
+            //         },
+            //     },
+            // ])
+            // if (unAssigned.length === 0) {
+            //     return res.send({ status: 1, data: JSON.stringify(unAssigned) })
+            // }
+            // unAssigned = unAssigned.filter((company) => company.getCompany.length === 0)
 
-            return res.send({ status: 1, data: JSON.stringify(unAssigned) })
+            return res.send({ status: 1, data: JSON.stringify(ListOfCompanies) })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }
@@ -63,29 +67,39 @@ module.exports = function () {
 
     companyControllers.deleteCompany = async (req, res) => {
         try {
-            let getCompany = req.body,checkIfExist;
+            let getCompany = req.body, checkIfExist;
             getCompany = getCompany.data[0]
-            checkIfExist = await db.findSingleDocument("company",{_id:getCompany.id})
-            if(!checkIfExist){
-                return res.send({status:0, response:"No company found"})
+            checkIfExist = await db.findSingleDocument("company", { _id: getCompany.id })
+            if (!checkIfExist) {
+                return res.send({ status: 0, response: "No company found" })
             }
             await db.updateOneDocument("company", { _id: getCompany.id }, { status: 0 })
-            return res.send({ status: 1, response: "Company deleted!" }) 
+            return res.send({ status: 1, response: "Company deleted!" })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }
     }
 
-    companyControllers.editCompany = async(req,res)=>{
+    companyControllers.editCompany = async (req, res) => {
         try {
-            let getCompany = req.body,checkIfExist;
+            let getCompany = req.body, checkIfExist;
             getCompany = getCompany.data[0]
-            checkIfExist = await db.findSingleDocument("company",{_id:getCompany.id})
-            if(!checkIfExist){
-                return res.send({status:0, response:"No company found"})
+            checkIfExist = await db.findSingleDocument("company", { _id: getCompany.id })
+            if (!checkIfExist) {
+                return res.send({ status: 0, response: "No company found" })
             }
-            await db.updateOneDocument("company", { _id: getCompany.id }, { companyName:getCompany.companyName,contact:getCompany.contact })
-            return res.send({ status: 1, response: "Company updated!" }) 
+            await db.updateOneDocument("company", { _id: getCompany.id }, { companyName: getCompany.companyName, contact: getCompany.contact })
+            return res.send({ status: 1, response: "Company updated!" })
+        } catch (error) {
+            return res.send({ status: 0, response: error.message })
+        }
+    }
+
+    companyControllers.assignStatus = async (req, res) => {
+        try {
+            let body = req.body;
+            await db.updateDocument("company", { _id: body.id }, { status: 2 })
+            return res.send("Updated")
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }

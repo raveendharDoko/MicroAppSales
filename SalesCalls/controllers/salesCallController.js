@@ -8,12 +8,21 @@ module.exports = function () {
 
     salesControllers.assignSaleCalls = async (req, res) => {
         try {
-            let assignCall = req.body, id, calls, arr = [];
+            let assignCall = req.body, postData;
             assignCall = assignCall.data[0]
-            await assignCall.companyId.forEach((call) => {
+            await assignCall.companyId.forEach(async (call) => {
                 assignCall.assignedBy = req.userInfo.userId
                 assignCall.companyId = call
                 db.insertSingleDocument("salesCall", assignCall)
+                postData = { id: call }
+                await fetch("http:/localhost:9000/company/assignStatus", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": req.headers.authorization
+                    },
+                    body: JSON.stringify(postData)
+                })
             })
             return res.send({ status: 1, response: "Call assigned" })
 

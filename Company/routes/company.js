@@ -11,6 +11,7 @@ companyRouter.use(verifyUser)
 companyRouter.post("/addCompany", authManager(), validate.addCompany, companyControllers.addCompany)
 companyRouter.get("/getAllCompany", authManager(), companyControllers.getAllCompany)
 companyRouter.get("/unAssignedCompanies",authManager(),companyControllers.getUnAssignedCompanies)
+companyRouter.post("/assignStatus",companyControllers.assignStatus)
 companyRouter.post("/deleteCompany",authManager(),validate.deleteCompany,companyControllers.deleteCompany)
 companyRouter.post("/editCompany",authManager(),validate.editCompany,companyControllers.editCompany)
 
