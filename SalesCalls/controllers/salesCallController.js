@@ -8,14 +8,13 @@ module.exports = function () {
 
     salesControllers.assignSaleCalls = async (req, res) => {
         try {
-            let assignCall = req.body, checkIfAssigned;
+            let assignCall = req.body, id, calls, arr = [];
             assignCall = assignCall.data[0]
-            checkIfAssigned = await db.findSingleDocument("salesCall", { companyId: assignCall.companyId })
-            if (checkIfAssigned) {
-                return res.send({ status: 0, response: `This company already assigned to ${checkIfAssigned.assignedTo} ` })
-            }
-            assignCall.assignedBy = req.userInfo.userId
-            await db.insertSingleDocument("salesCall", assignCall)
+            await assignCall.companyId.forEach((call) => {
+                assignCall.assignedBy = req.userInfo.userId
+                assignCall.companyId = call
+                db.insertSingleDocument("salesCall", assignCall)
+            })
             return res.send({ status: 1, response: "Call assigned" })
 
         } catch (error) {
@@ -67,7 +66,7 @@ module.exports = function () {
         }
     }
 
-   
+
 
     salesControllers.updateReport = async (req, res) => {
         try {
@@ -78,10 +77,20 @@ module.exports = function () {
                 if (!getCall) {
                     return res.send({ status: 0, response: "No sales call found" })
                 }
-            await db.updateOneDocument("salesCall", { _id: getCall._id }, { $push: { remarks: [{ data: updateReport.remark }] },status:updateReport.status })
+            await db.updateOneDocument("salesCall", { _id: getCall._id }, { $push: { remarks: [{ data: updateReport.remark }] }, status: updateReport.status })
             return res.send({ status: 1, response: "Report updated" })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
+        }
+    }
+
+    salesControllers.updateStatus = async (req, res) => {
+        try {
+            const body = req.body
+            await db.updateOneDocument("salesCall", { _id: body.callId }, { status: body.status })
+            return res.send("Report updated")
+        } catch (error) {
+            return res.send(error.message);
         }
     }
 
@@ -197,4 +206,5 @@ module.exports = function () {
 
     return salesControllers
 }
+
 

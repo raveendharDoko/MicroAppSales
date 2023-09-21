@@ -7,6 +7,10 @@ const companySchema = mongoose.Schema({
     },
     contact:{
         type:String
+    },
+    status:{
+        type:Number,
+        default:1
     }
 },{
     timestamps:true,

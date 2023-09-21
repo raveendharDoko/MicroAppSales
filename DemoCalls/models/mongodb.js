@@ -1,10 +1,11 @@
 const mongoose = require('mongoose')
 const demo = require('../schema/demo')
-
+const salescall = require("../../SalesCalls/schema/salesCall")
 const ObjectId = mongoose.Types.ObjectId;
 
 const db = {
-  demo
+  demo,
+  salescall
 }
 
 

@@ -61,5 +61,17 @@ module.exports = function () {
         }
     }
 
+    companyControllers.deleteCompany = async(req,res)=>{
+        try {
+            let getCompany = req.body;
+            getCompany = getCompany.data[0]
+            await db.updateOneDocument("company",{_id:getCompany.id},{status:0})
+            return res.send({status:1, response:"Company deleted!"})
+
+        } catch (error) {
+            
+        }
+    }
+
     return companyControllers
 }

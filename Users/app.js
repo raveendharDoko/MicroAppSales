@@ -5,6 +5,7 @@ const helmet = require("helmet")
 const bodyParser = require('body-parser');
 const cors = require("cors")
 const { serverConnections } = require('./config/config.js');
+const { HmacSHA256 } = require('crypto-js');
 require("dotenv").config()
 
 mongoose.connect(serverConnections.MONGODB)
@@ -31,13 +32,16 @@ app.use(
 );
 app.use(express.json())
 app.use(bodyParser.json())
-
+// let payload = 2 + "dfghnj"
+// let hash = HmacSHA256(payload, "jaawdfwfweguiwegv").toString()
+// console.log(hash);
 app.use(helmet({
     xDownloadOptions: false,
     originAgentCluster: false,
     xDnsPrefetchControl: false,
     xXssProtection: false,
 }))
+
 
 
 app.use("/user", userRouter)

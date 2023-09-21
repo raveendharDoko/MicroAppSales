@@ -60,11 +60,25 @@ const insertSingleDocument = async (collection, document) => {
   }
 }
 
+const insertManyDocuments = async (collection, documents) => {
+  try {
+    let result = await db[collection].insertMany(documents)
+
+    return result;
+  } catch (error) {
+    console.error("Error inserting documents: ", error)
+
+    throw error;
+  }
+}
+
+
+
 const updateOneDocument = async (collection, filter, update) => {
   try {
     let result = await db[collection].updateOne(filter, update)
 
-    return result;5
+    return result;
   } catch (error) {
     console.error("Error updating document: ", error)
 
@@ -111,6 +125,7 @@ module.exports = {
   findSingleDocument,
   insertSingleDocument,
   updateOneDocument,
+  insertManyDocuments,
   findByIdAndUpdate,
   findOneAndUpdate
 }

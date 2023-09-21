@@ -1,3 +1,4 @@
+const salesCallController = require("../../SalesCalls/controllers/salesCallController.js")();
 const db = require("../models/mongodb.js")
 const Demo = require("../schema/demo.js");
 const mongoose = require("mongoose")
@@ -31,6 +32,18 @@ module.exports = function () {
                     return res.send({ status: 0, response: "No sales call found" })
                 }
             await db.updateOneDocument("demo", { _id: getCall._id }, { $push: { remarks: [{ data: updateReport.remark }] }, status: updateReport.status })
+            if(updateReport.status !== 2 ){
+                const postData = { callId: getCall.callId, status: updateReport.status }
+                await fetch("http:/localhost:9000/salesCalls/updateStatus", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": req.headers.authorization
+                    },
+                    body: JSON.stringify(postData)
+                })
+                return res.send({ status: 1, response: "Report updated" })   
+            }
             return res.send({ status: 1, response: "Report updated" })
 
         } catch (error) {
@@ -209,9 +222,9 @@ module.exports = function () {
     }
 
 
-    demoController.getManagerDemo = async(req,res)=>{
+    demoController.getManagerDemo = async (req, res) => {
         try {
-            let id,getDemo,info;
+            let id, getDemo, info;
             id = new mongoose.Types.ObjectId(req.userInfo.userId)
             getDemo = await Demo.aggregate([
                 {
@@ -247,7 +260,7 @@ module.exports = function () {
                         as: "company",
                     },
                 },
-                { $project: { callId: 1, assignedTo: 1, assignedBy: 1, remarks: 1, status: 1, createdAt: 1, "getDemoUser.username": 1, "getSalesUser.username":1, "company.companyName":1 } }
+                { $project: { callId: 1, assignedTo: 1, assignedBy: 1, remarks: 1, status: 1, createdAt: 1, "getDemoUser.username": 1, "getSalesUser.username": 1, "company.companyName": 1 } }
             ])
             if (getDemo.length === 0) {
                 return res.send({ status: 1, data: JSON.stringify(getDemo) })
@@ -267,7 +280,7 @@ module.exports = function () {
                 return obj
             })
 
-            return res.send({status:1, data: JSON.stringify(info)})
+            return res.send({ status: 1, data: JSON.stringify(info) })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }
