@@ -70,6 +70,20 @@ module.exports = function () {
         },
     ];
 
+    validator.removeFromNetwork = [
+        check("data").notEmpty().withMessage("Data cannot be empty"),
+        check("data.*.id").notEmpty().withMessage("Id is required field"),
+
+        (req, res, next) => {
+            const errors = validationResult(req).array();
+            if (errors.length > 0) {
+                data.response = errors[0].msg;
+                return res.send(data);
+            }
+            return next();
+        },
+    ];
+
     return validator
 
 }

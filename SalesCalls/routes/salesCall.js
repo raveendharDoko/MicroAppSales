@@ -11,7 +11,7 @@ salesCallRouter.post("/assignCall",authManager(), validate.assignCall, salesCall
 salesCallRouter.get("/allAssignedCall",authManager(), salesCallController.getAllCalls) // assign companies with contact to each employees
 salesCallRouter.get("/getUserCalls", salesCallController.yourCallList)
 salesCallRouter.post("/updateReport", validate.updateReport, salesCallController.updateReport) // updating the detailed report of each attended calls in a stretch of followups
-salesCallRouter.post("/getCallById",salesCallController.getCallById)
+salesCallRouter.post("/getCallById",validate.getById, salesCallController.getCallById)
 salesCallRouter.post("/updateStatus",salesCallController.updateStatus)
 
 module.exports = salesCallRouter

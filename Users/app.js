@@ -5,7 +5,6 @@ const helmet = require("helmet")
 const bodyParser = require('body-parser');
 const cors = require("cors")
 const { serverConnections } = require('./config/config.js');
-const { HmacSHA256 } = require('crypto-js');
 require("dotenv").config()
 
 mongoose.connect(serverConnections.MONGODB)

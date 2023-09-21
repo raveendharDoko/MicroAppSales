@@ -61,15 +61,33 @@ module.exports = function () {
         }
     }
 
-    companyControllers.deleteCompany = async(req,res)=>{
+    companyControllers.deleteCompany = async (req, res) => {
         try {
-            let getCompany = req.body;
+            let getCompany = req.body,checkIfExist;
             getCompany = getCompany.data[0]
-            await db.updateOneDocument("company",{_id:getCompany.id},{status:0})
-            return res.send({status:1, response:"Company deleted!"})
-
+            checkIfExist = await db.findSingleDocument("company",{_id:getCompany.id})
+            if(!checkIfExist){
+                return res.send({status:0, response:"No company found"})
+            }
+            await db.updateOneDocument("company", { _id: getCompany.id }, { status: 0 })
+            return res.send({ status: 1, response: "Company deleted!" }) 
         } catch (error) {
-            
+            return res.send({ status: 0, response: error.message })
+        }
+    }
+
+    companyControllers.editCompany = async(req,res)=>{
+        try {
+            let getCompany = req.body,checkIfExist;
+            getCompany = getCompany.data[0]
+            checkIfExist = await db.findSingleDocument("company",{_id:getCompany.id})
+            if(!checkIfExist){
+                return res.send({status:0, response:"No company found"})
+            }
+            await db.updateOneDocument("company", { _id: getCompany.id }, { companyName:getCompany.companyName,contact:getCompany.contact })
+            return res.send({ status: 1, response: "Company updated!" }) 
+        } catch (error) {
+            return res.send({ status: 0, response: error.message })
         }
     }
 

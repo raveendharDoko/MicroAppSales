@@ -33,7 +33,8 @@ module.exports = function () {
                 }
             await db.updateOneDocument("demo", { _id: getCall._id }, { $push: { remarks: [{ data: updateReport.remark }] }, status: updateReport.status })
             if(updateReport.status !== 2 ){
-                const postData = { callId: getCall.callId, status: updateReport.status }
+                const postData = { callId: getCall.callId, status: updateReport.status===1? 1 :4 }
+
                 await fetch("http:/localhost:9000/salesCalls/updateStatus", {
                     method: "POST",
                     headers: {

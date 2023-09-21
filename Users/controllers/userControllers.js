@@ -51,7 +51,7 @@ module.exports = function () {
                 return res.send({ status: 0, response: "Password doesn't match" })
             }
             privateKey = fs.readFileSync("./config/privateKey.key");
-            token = jwt.sign({ userId: checkExist._id, role: checkExist.role } , privateKey, { algorithm: 'RS256', expiresIn: '2h' })
+            token = jwt.sign({ userId: checkExist._id, role: checkExist.role }, privateKey, { algorithm: 'RS256', expiresIn: '2h' })
             // res.setHeader("Authorization", "Bearer " + token)
             // token = jwt.sign({ user: { userId: checkExist._id, role: checkExist.role, username: checkExist.username } }, process.env.JWT_SECRET, { expiresIn: "2h" })
             return res.send({ status: 1, response: "Logged successfully", data: token })
@@ -127,7 +127,7 @@ module.exports = function () {
         }
     }
 
-    
+
     userControllers.getYourEmployees = async (req, res) => {
         try {
             let getUsers;
@@ -136,6 +136,27 @@ module.exports = function () {
                 return res.send({ status: 1, data: JSON.stringify(getUsers) })
             }
             return res.send({ status: 1, data: JSON.stringify(getUsers) })
+        } catch (error) {
+            return res.send({ status: 0, response: error.message })
+        }
+    }
+
+    userControllers.removeFromNetwork = async (req, res) => {
+        try {
+            let employee = req.body, checkExist;
+            employee = employee.data[0]
+            checkExist = await db.findSingleDocument("users", { _id: employee.id })
+            if (!checkExist) {
+                return res.send({ status: 0, response: "No employee found" })
+            }
+            if (checkExist.managedBy === null) {
+                return res.send({ status: 0, response: "This person don't have any assigned manager yet" })
+            }
+            if (checkExist.managedBy === req.userInfo.userId) {
+                return res.send({ status: 0, response: "Your not this persons manager" })
+            }
+            await db.updateOneDocument("users", { _id: checkExist._id }, { managedBy: null })
+            return res.send({status:1 , response:"Employee removed"})
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }

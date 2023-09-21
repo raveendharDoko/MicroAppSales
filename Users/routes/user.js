@@ -19,6 +19,7 @@ userRouter.get("/getAllAdmin",authSuperAdmin(), userControllers.getAllAdmins)
 userRouter.get("/getAllManager",authSuperAdmin(), userControllers.getAllManagers)
 userRouter.get("/getAllEmployees", userControllers.getAllEmployees)
 userRouter.get("/unAssignedEmployee",authManager(),userControllers.unAssignedEmployee)
+userRouter.post("/removeFromNetwork",authManager(),validate.removeFromNetwork,userControllers.removeFromNetwork)
 
 
 module.exports = userRouter

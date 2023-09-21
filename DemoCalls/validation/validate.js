@@ -24,20 +24,6 @@ module.exports = function () {
         check("data").notEmpty().withMessage("Data cannot be empty"),
         check("data.*.callId").notEmpty().withMessage("callId is required field"),
         check("data.*.remark").notEmpty().withMessage("Remark is required field"),
-
-        (req, res, next) => {
-            const errors = validationResult(req).array();
-            if (errors.length > 0) {
-                data.response = errors[0].msg;
-                return res.send(data);
-            }
-            return next();
-        },
-    ];
-
-    validator.changeStatus = [
-        check("data").notEmpty().withMessage("Data cannot be empty"),
-        check("data.*.id").notEmpty().withMessage("Id is required field"),
         check("data.*.status").notEmpty().withMessage("Status is required field"),
 
         (req, res, next) => {
@@ -49,6 +35,21 @@ module.exports = function () {
             return next();
         },
     ];
+
+    validator.getById = [
+        check("data").notEmpty().withMessage("Data cannot be empty"),
+        check("data.*.id").notEmpty().withMessage("callId is required field"),
+
+        (req, res, next) => {
+            const errors = validationResult(req).array();
+            if (errors.length > 0) {
+                data.response = errors[0].msg;
+                return res.send(data);
+            }
+            return next();
+        },
+    ];
+
 
     return validator
 
