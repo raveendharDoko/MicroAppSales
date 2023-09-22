@@ -186,10 +186,10 @@ module.exports = function () {
                         from: "users",
                         localField: "assignedTo",
                         foreignField: "_id",
-                        as: "getManager",
+                        as: "getUser",
                     },
                 },
-                { $project: { companyId: 1, assignedTo: 1, assignedBy: 1, remarks: 1, status: 1, assignedDate: 1, "getCompany.companyName": 1, "getManager.username": 1 } }
+                { $project: { companyId: 1, assignedTo: 1, assignedBy: 1, remarks: 1, status: 1, assignedDate: 1, "getCompany.companyName": 1, "getManager.username": 1, "getUser.username": 1 } }
             ])
             if (!getCall) {
                 return res.send({ status: 0, response: "No calls found" })
@@ -204,10 +204,77 @@ module.exports = function () {
                 obj.status = call.status
                 obj.companyName = call.getCompany[0].companyName
                 obj.assignedByName = call.getManager[0].username
+                obj.assignedToName = call.getUser[0].username
                 obj.remarks = call.remarks
                 return obj
             })
-            return res.send({ status: 1, data: JSON.stringify(info) })
+            return res.send({ status: 1, data: info })
+        } catch (error) {
+            return res.send({ status: 0, response: error.message })
+        }
+    }
+
+    salesControllers.getMergedReport = async (req, res) => {
+        try {
+            let getReports = req.body, getInfo, id, info;
+            getReports = getReports.data[0];
+            id = new mongoose.Types.ObjectId(getReports.id)
+            getInfo = await SalesCalls.aggregate([
+                { $match: { _id: id } },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "assignedTo",
+                        foreignField: "_id",
+                        as: "getSalesUser",
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "democalls",
+                        localField: "_id",
+                        foreignField: "callId",
+                        as: "getDemo",
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "getDemo.assignedTo",
+                        foreignField: "_id",
+                        as: "getDemoUser",
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "companies",
+                        localField: "companyId",
+                        foreignField: "_id",
+                        as: "getCompany",
+                    },
+                },
+                { $project: { assignedDate: 1, status: 1, remarks: 1, "getSalesUser.username": 1, "getDemoUser.username": 1, "getDemo._id": 1, "getDemo.assignedTo": 1, "getDemo.assignedBy": 1, "getDemo.remarks": 1, "getDemo.status": 1, "getCompany.companyName": 1 } },
+            ])
+
+            if (getInfo.length === 0) {
+                return res.send({ status: 1, data: JSON.stringify(getInfo) })
+            }
+            info = getInfo.map((call) => {
+                let obj = {}
+                obj.callId = call.getDemo[0]._id
+                obj.assignedTo = call.getDemo[0].assignedTo
+                obj.assignedBy = call.getDemo[0].assignedBy
+                obj.companyName = call.getCompany[0].companyName
+                obj.assignedToName = call.getDemoUser[0].username
+                obj.assignedByName = call.getSalesUser[0].username
+                // obj.SalesAssignedOn = call.assignedDate
+                // obj.SalesStatus = call.status
+                // obj.SalesRemarks = call.remarks
+                obj.status = call.getDemo[0].status
+                obj.remarks = call.getDemo[0].remarks
+                return obj
+            })
+            return res.send({ stauts: 1, response: JSON.stringify(info) })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }

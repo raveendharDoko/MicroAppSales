@@ -14,6 +14,7 @@ demoCallRouter.get("/assignedDemos",demoController.getAllCalls)
 demoCallRouter.get("/getMyDemo", demoController.getMyDemo)
 demoCallRouter.get("/managerDemo",authManager(),demoController.getManagerDemo)
 demoCallRouter.post("/getDemoById",validate.getById,demoController.getDemoById)
+demoCallRouter.post("/getDemoByCallId",validate.getById,demoController.getDemoByCallId)
 
 
 module.exports = demoCallRouter
