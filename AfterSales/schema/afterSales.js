@@ -1,11 +1,12 @@
 const mongoose = require("mongoose")
 
 let ObjectId = mongoose.Types.ObjectId
-const salesCallSchema = mongoose.Schema({
+
+const afterSalesSchema = mongoose.Schema({
     companyId: {
         type: ObjectId,
         require: true,
-        ref:"company"
+        ref: "company"
     },
     assignedTo: {
         type: ObjectId,
@@ -17,23 +18,18 @@ const salesCallSchema = mongoose.Schema({
         require: true,
         ref: "users"
     },
-    assignedDate: {
-        type: Date,
-    },
-    updatedAt: {
-        type: Date,
-    },
     status: {
         type: Number,
-        default: 0
+        default:1
     },
     remarks: [
         {
-            _id:false,
-            enteredDate: { type: Date, default: Date.now() },
-            data: { type: String },
-            contactPerson:{type:String},
-            position:{type:String}
+            _id: false,
+            remark: { type: String },
+            contactPerson: { type: String },
+            createdAt: { type: Date, default: Date.now() },
+            currentVolume: { type: Number },
+            promisedVolume: { type: Number }
         }
     ]
 },{
@@ -41,5 +37,4 @@ const salesCallSchema = mongoose.Schema({
     versionKey:false
 })
 
-
-module.exports = mongoose.model("salesCalls",salesCallSchema)
+module.exports = mongoose.model("afterSales",afterSalesSchema)

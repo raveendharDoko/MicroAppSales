@@ -5,8 +5,26 @@ const companySchema = mongoose.Schema({
         type:String,
         unique:true
     },
-    contact:{
+    contactPerson:{
         type:String
+    },
+    contactPersonMobileNumber:{
+        type:Number
+    },
+    companyMobileNumber:{
+        type:Number
+    },
+    address:{
+        type:String
+    },
+    city:{
+        type:String
+    },
+    state:{
+        type:String
+    },
+    pincode:{
+        type:Number
     },
     status:{
         type:Number,

@@ -6,21 +6,20 @@ const validate = require("../validation/validate.js")()
 
 const userRouter = express.Router()
 
-
-userRouter.post("/register", validate.register, userControllers.employeeRegister)
+userRouter.post("/register", validate.register, userControllers.register)
 userRouter.post("/login", validate.login, userControllers.login)
 
 userRouter.use(verifyUser)
 
-userRouter.post("/createPower",authSuperAdmin(), validate.createPower, userControllers.createPowers) // create Admin and manager by superAdmin 
-userRouter.get("/getYourEmployees",authManager(), userControllers.getYourEmployees)
-userRouter.post("/createNetwork", authManager(), validate.createNetwork, userControllers.createRelationship) // adding team members by manager
-userRouter.get("/getAllAdmin",authSuperAdmin(), userControllers.getAllAdmins)
-userRouter.get("/getAllManager",authSuperAdmin(), userControllers.getAllManagers)
-userRouter.get("/getAllEmployees", userControllers.getAllEmployees)
-userRouter.get("/unAssignedEmployee",authManager(),userControllers.unAssignedEmployee)
-userRouter.post("/removeFromNetwork",authManager(),validate.removeFromNetwork,userControllers.removeFromNetwork)
-
+userRouter.get("/getUnAssignedEmployee", authManager(), userControllers.unAssignedEmployee)
+userRouter.post("/assignEmployee", authManager(), validate.createNetwork, userControllers.createRelationship) // adding team members by manager
+userRouter.post("/getYourEmployee", userControllers.getYourEmployees)
+userRouter.post("/unAssignEmployee", authManager(), validate.removeFromNetwork, userControllers.removeFromNetwork)
 
 module.exports = userRouter
 
+
+// userRouter.post("/createPower",authSuperAdmin(), validate.createPower, userControllers.createPowers) // create Admin and manager by superAdmin 
+// userRouter.get("/getAllAdmin",authSuperAdmin(), userControllers.getAllAdmins)
+// userRouter.get("/getAllManager",authSuperAdmin(), userControllers.getAllManagers)
+// userRouter.get("/getAllEmployees", userControllers.getAllEmployees)

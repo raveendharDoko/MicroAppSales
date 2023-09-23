@@ -31,9 +31,9 @@ module.exports = function () {
                 if (!getCall) {
                     return res.send({ status: 0, response: "No sales call found" })
                 }
-            await db.updateOneDocument("demo", { _id: getCall._id }, { $push: { remarks: [{ data: updateReport.remark }] }, status: updateReport.status })
+            await db.updateOneDocument("demo", { _id: getCall._id }, { $push: { remarks: [{ data: updateReport.remark, contactPerson: updateReport.contactPerson, position: updateReport.position }] }, status: updateReport.status })
             if (updateReport.status !== 2) {
-                const postData = { callId: getCall.callId, status: updateReport.status === 1 ? 1 : 4 }
+                const updateStatusSales = { callId: getCall.callId, status: updateReport.status === 1 ? 1 : 4 }
 
                 await fetch("http:/localhost:9000/salesCalls/updateStatus", {
                     method: "POST",
@@ -41,8 +41,32 @@ module.exports = function () {
                         "Content-Type": "application/json",
                         "Authorization": req.headers.authorization
                     },
-                    body: JSON.stringify(postData)
+                    body: JSON.stringify(updateStatusSales)
                 })
+                const getCompany = await Demo.aggregate([
+                    {
+                        $lookup: {
+                            from: "salescalls",
+                            localField:"callId",
+                            foreignField: "_id",
+                            as: "getCall",
+                        },
+                    },
+                    {$match:{"getCall._id":getCall.callId}},
+                    {$unwind:"$getCall"},
+                    {$project:{"getCall.companyId":1}}
+                ])
+                const updateStatusCompany = { id: getCompany[0].getCall.companyId, status: updateReport.status === 1 ? 3 : 4 }
+                
+                await fetch("http:/localhost:9000/company/assignStatus", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": req.headers.authorization
+                    },
+                    body: JSON.stringify(updateStatusCompany)
+                })
+
                 return res.send({ status: 1, response: "Report updated" })
             }
             return res.send({ status: 1, response: "Report updated" })
@@ -107,14 +131,7 @@ module.exports = function () {
     }
 
 
-    // status 1 = In progress
-    // status 2 = Demo completed and waiting for customer response
-    // status 3 = Demo completed and customer need one more demo 
-    // status 4 = Demo completed and customer likes to move forward
-    // status 5 = Demo completed and customer not moving forward
-
-
-    demoController.getAllCalls = async (req, res) => {
+    demoController.assignedDemos = async (req, res) => {
         try {
             let getAssignedCalls, info;
             let id = new mongoose.Types.ObjectId(req.userInfo.userId)
@@ -285,86 +302,6 @@ module.exports = function () {
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }
-    }
-
-
-    demoController.getDemoByCallId = async (req, res) => {
-
-        try {
-            let demoId = req.body, getDemo, id, info;
-            demoId = demoId.data[0]
-            id = new mongoose.Types.ObjectId(demoId.id)
-            getDemo = await Demo.aggregate([
-                { $match: { callId: id } },
-                {
-                    $lookup: {
-                        from: "salescalls",
-                        localField: "callId",
-                        foreignField: "_id",
-                        as: "getCall",
-                    },
-                },
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "assignedBy",
-                        foreignField: "_id",
-                        as: "getUser",
-                    },
-                },
-                {
-                    $lookup: {
-                        from: "companies",
-                        localField: "getCall.companyId",
-                        foreignField: "_id",
-                        as: "company",
-                    },
-                },
-
-                { $project: { _id: 1, companyId: 1, assignedTo: 1, assignedBy: 1, remarks: 1, status: 1, assignedDate: 1, "company.companyName": 1, "getUser.username": 1 } }
-
-            ])
-
-            if (!getDemo) {
-
-                return res.send({ status: 0, response: "No calls found" })
-
-            }
-
-            info = getDemo.map((call) => {
-
-                let obj = {}
-
-                obj.callId = call._id
-
-                obj.companyId = call.companyId
-
-                obj.assignedOn = call.assignedDate
-
-                obj.assignedTo = call.assignedTo
-
-                obj.assignedBy = call.assignedBy
-
-                obj.status = call.status
-
-                // obj.companyName = call.company[0].companyName
-
-                obj.assignedByName = call.getUser[0].username
-
-                obj.remarks = call.remarks
-
-                return obj
-
-            })
-
-            return res.send({ status: 1, data: JSON.stringify(info) })
-
-        } catch (error) {
-
-            return res.send({ status: 0, response: error.message })
-
-        }
-
     }
 
     return demoController

@@ -18,11 +18,16 @@ const demoAssignSchema = mongoose.Schema({
         type:ObjectId,
         ref:"users"
     },
+    scheduledAt:{
+        type:Date
+    },
     remarks:[
         {
             _id:false,
             enteredDate: { type: Date, default: Date.now() },
-            data: { type: String }
+            data: { type: String },
+            contactPerson:{type:String},
+            position:{type:String}
         }
     ],
 },

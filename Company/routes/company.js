@@ -14,5 +14,8 @@ companyRouter.get("/unAssignedCompanies",authManager(),companyControllers.getUnA
 companyRouter.post("/assignStatus",companyControllers.assignStatus)
 companyRouter.post("/deleteCompany",authManager(),validate.deleteCompany,companyControllers.deleteCompany)
 companyRouter.post("/editCompany",authManager(),validate.editCompany,companyControllers.editCompany)
+companyRouter.get("/getConvertedCompanies",authManager(),companyControllers.getConvertedCompanies)
+companyRouter.post("/getOverallReport",companyControllers.getMergedReport)
+
 
 module.exports = companyRouter

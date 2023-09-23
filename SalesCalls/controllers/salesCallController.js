@@ -14,7 +14,7 @@ module.exports = function () {
                 assignCall.assignedBy = req.userInfo.userId
                 assignCall.companyId = call
                 db.insertSingleDocument("salesCall", assignCall)
-                postData = { id: call }
+                postData = { id: call, status: 2 }
                 await fetch("http:/localhost:9000/company/assignStatus", {
                     method: "POST",
                     headers: {
@@ -79,19 +79,36 @@ module.exports = function () {
 
     salesControllers.updateReport = async (req, res) => {
         try {
-            let updateReport = req.body, getCall;
+            let updateReport = req.body, getCall, id;
             updateReport = updateReport.data[0]
             getCall = await SalesCalls.findById({ _id: updateReport.callId })
-            if (getCall.assignedTo = req.userInfo.userId)
-                if (!getCall) {
-                    return res.send({ status: 0, response: "No sales call found" })
-                }
-            await db.updateOneDocument("salesCall", { _id: getCall._id }, { $push: { remarks: [{ data: updateReport.remark }] }, status: updateReport.status })
+            if (!getCall) {
+                return res.send({ status: 0, response: "No sales call found" })
+            }
+            id = getCall.assignedTo.toString()
+
+            if (id !== req.userInfo.userId) {
+                return res.send({ status: 0, response: "Un authorized" })
+            }
+            await db.updateOneDocument("salesCall", { _id: getCall._id }, { $push: { remarks: [{ data: updateReport.remark, contactPerson: updateReport.contactPerson, position: updateReport.position }] }, status: updateReport.status })
+            if (updateReport.status === 1 || updateReport.status === 4) {
+                const updateStatusCompany = { id: getCall.companyId, status: updateReport.status === 1 ? 3 : 4 }
+                await fetch("http:/localhost:9000/company/assignStatus", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": req.headers.authorization
+                    },
+                    body: JSON.stringify(updateStatusCompany)
+                })
+            }
             return res.send({ status: 1, response: "Report updated" })
+
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }
     }
+
 
     salesControllers.updateStatus = async (req, res) => {
         try {
@@ -150,13 +167,6 @@ module.exports = function () {
         }
     }
 
-    // status 1 = In progress
-    // status 2 = Call not answered
-    // status 3 = Call attended and customer is busy
-    // status 4 = Call attended and informed to call in a schedule
-    // status 5 = Call attended and conveienced for demo
-    // status 6 = Call attended and customer not showing interest
-
 
     salesControllers.getCallById = async (req, res) => {
         try {
@@ -214,73 +224,73 @@ module.exports = function () {
         }
     }
 
-    salesControllers.getMergedReport = async (req, res) => {
-        try {
-            let getReports = req.body, getInfo, id, info;
-            getReports = getReports.data[0];
-            id = new mongoose.Types.ObjectId(getReports.id)
-            getInfo = await SalesCalls.aggregate([
-                { $match: { _id: id } },
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "assignedTo",
-                        foreignField: "_id",
-                        as: "getSalesUser",
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "democalls",
-                        localField: "_id",
-                        foreignField: "callId",
-                        as: "getDemo",
-                    },
-                },
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "getDemo.assignedTo",
-                        foreignField: "_id",
-                        as: "getDemoUser",
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "companies",
-                        localField: "companyId",
-                        foreignField: "_id",
-                        as: "getCompany",
-                    },
-                },
-                { $project: { assignedDate: 1, status: 1, remarks: 1, "getSalesUser.username": 1, "getDemoUser.username": 1, "getDemo._id": 1, "getDemo.assignedTo": 1, "getDemo.assignedBy": 1, "getDemo.remarks": 1, "getDemo.status": 1, "getCompany.companyName": 1 } },
-            ])
-
-            if (getInfo.length === 0) {
-                return res.send({ status: 1, data: JSON.stringify(getInfo) })
-            }
-            info = getInfo.map((call) => {
-                let obj = {}
-                obj.callId = call.getDemo[0]._id
-                obj.assignedTo = call.getDemo[0].assignedTo
-                obj.assignedBy = call.getDemo[0].assignedBy
-                obj.companyName = call.getCompany[0].companyName
-                obj.assignedToName = call.getDemoUser[0].username
-                obj.assignedByName = call.getSalesUser[0].username
-                // obj.SalesAssignedOn = call.assignedDate
-                // obj.SalesStatus = call.status
-                // obj.SalesRemarks = call.remarks
-                obj.status = call.getDemo[0].status
-                obj.remarks = call.getDemo[0].remarks
-                return obj
-            })
-            return res.send({ stauts: 1, response: JSON.stringify(info) })
-        } catch (error) {
-            return res.send({ status: 0, response: error.message })
-        }
-    }
-
     return salesControllers
 }
 
 
+
+// salesControllers.getMergedReport = async (req, res) => {
+//     try {
+//         let getReports = req.body, getInfo, id, info;
+//         getReports = getReports.data[0];
+//         id = new mongoose.Types.ObjectId(getReports.id)
+//         getInfo = await SalesCalls.aggregate([
+//             { $match: { _id: id } },
+//             {
+//                 $lookup: {
+//                     from: "users",
+//                     localField: "assignedTo",
+//                     foreignField: "_id",
+//                     as: "getSalesUser",
+//                 }
+//             },
+//             {
+//                 $lookup: {
+//                     from: "democalls",
+//                     localField: "_id",
+//                     foreignField: "callId",
+//                     as: "getDemo",
+//                 },
+//             },
+//             {
+//                 $lookup: {
+//                     from: "users",
+//                     localField: "getDemo.assignedTo",
+//                     foreignField: "_id",
+//                     as: "getDemoUser",
+//                 }
+//             },
+//             {
+//                 $lookup: {
+//                     from: "companies",
+//                     localField: "companyId",
+//                     foreignField: "_id",
+//                     as: "getCompany",
+//                 },
+//             },
+//             { $project: { assignedDate: 1, status: 1, remarks: 1, "getSalesUser.username": 1, "getDemoUser.username": 1, "getDemo._id": 1, "getDemo.assignedTo": 1, "getDemo.assignedBy": 1, "getDemo.remarks": 1, "getDemo.status": 1, "getCompany.companyName": 1 } },
+//         ])
+
+//         if (getInfo.length === 0) {
+//             return res.send({ status: 1, data: JSON.stringify(getInfo) })
+//         }
+//         info = getInfo.map((call) => {
+//             let obj = {}
+//             obj.callId = call.getDemo[0]._id
+//             obj.assignedTo = call.getDemo[0].assignedTo
+//             obj.assignedBy = call.getDemo[0].assignedBy
+//             obj.companyName = call.getCompany[0].companyName
+//             obj.assignedToName = call.getDemoUser[0].username
+//             obj.assignedByName = call.getSalesUser[0].username
+//             obj.SalesAssignedOn = call.assignedDate
+//             obj.SalesStatus = call.status
+//             obj.SalesRemarks = call.remarks
+//             obj.status = call.getDemo[0].status
+//             obj.remarks = call.getDemo[0].remarks
+//             return obj
+//         })
+//         return res.send({ stauts: 1, response:info })
+//     } catch (error) {
+//         return res.send({ status: 0, response: error.message })
+//     }
+// }

@@ -10,11 +10,10 @@ demoCallRouter.use(verifyUser)
 
 demoCallRouter.post("/assignDemo",validate.assignDemo, demoController.assignDemo)
 demoCallRouter.post("/updateReport",validate.updateReport, demoController.updateReport) // updating the status of demo
-demoCallRouter.get("/assignedDemos",demoController.getAllCalls)
+demoCallRouter.get("/assignedDemos",demoController.assignedDemos)
 demoCallRouter.get("/getMyDemo", demoController.getMyDemo)
 demoCallRouter.get("/managerDemo",authManager(),demoController.getManagerDemo)
 demoCallRouter.post("/getDemoById",validate.getById,demoController.getDemoById)
-demoCallRouter.post("/getDemoByCallId",validate.getById,demoController.getDemoByCallId)
 
 
 module.exports = demoCallRouter
