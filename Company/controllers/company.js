@@ -102,9 +102,9 @@ module.exports = function () {
             let getConvertedCompanies;
             getConvertedCompanies = await db.findDocuments("company", { status: 3 })
             if (getConvertedCompanies.length === 0) {
-                return res.send({ status: 1, response: JSON.stringify(getConvertedCompanies) })
+                return res.send({ status: 1, data: JSON.stringify(getConvertedCompanies) })
             }
-            return res.send({ status: 1, response: JSON.stringify(getConvertedCompanies) })
+            return res.send({ status: 1, data: JSON.stringify(getConvertedCompanies) })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }
@@ -161,7 +161,7 @@ module.exports = function () {
                     obj.getSalesStatus = call.getSales[0].status
                     return obj
                 })
-                return res.send({ stauts: 1, response: info })
+                return res.send({ stauts: 1, data: JSON.stringify(info) })
             }
 
             if (getCompany.status === 3 || getCompany.status === 4) {
@@ -217,7 +217,7 @@ module.exports = function () {
                     obj.getSalesUser = call.getSalesUser[0].username
                     obj.getSalesRemarks = call.getSales[0].remarks
                     obj.getSalesStatus = call.getSales[0].status
-                    if(call.getDemoUser.length === 0){
+                    if (call.getDemoUser.length === 0) {
                         return obj
                     }
                     obj.getDemoUser = call.getDemoUser[0].username
@@ -225,7 +225,7 @@ module.exports = function () {
                     obj.getDemoStatus = call.getDemo[0].status
                     return obj
                 })
-                return res.send({ stauts: 1, response: info })
+                return res.send({ stauts: 1, data: JSON.stringify(info) })
             }
             if (getCompany.status === 5) {
                 id = new mongoose.Types.ObjectId(getReports.id)
@@ -304,7 +304,7 @@ module.exports = function () {
                     obj.getAfterSalesStatus = call.getAfterSales[0].status
                     return obj
                 })
-                return res.send({ stauts: 1, response: info })
+                return res.send({ stauts: 1, data: JSON.stringify(info) })
             }
         } catch (error) {
             return res.send({ status: 0, response: error.message })

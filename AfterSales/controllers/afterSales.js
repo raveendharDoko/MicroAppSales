@@ -12,7 +12,7 @@ module.exports = function () {
                 assignCompanies.assignedBy = req.userInfo.userId
                 assignCompanies.companyId = call
                 await db.insertSingleDocument("afterSales", assignCompanies)
-                postData = { id: call, status:5 }
+                postData = { id: call, status: 5 }
                 await fetch("http:/localhost:9000/company/assignStatus", {
                     method: "POST",
                     headers: {
@@ -33,9 +33,9 @@ module.exports = function () {
             let GetManagerConvertedCompanies;
             GetManagerConvertedCompanies = await db.findDocuments("afterSales", { assignedBy: req.userInfo.userId })
             if (GetManagerConvertedCompanies.length === 0) {
-                return res.send({ status: 0, response: JSON.stringify(GetManagerConvertedCompanies) })
+                return res.send({ status: 0, data: JSON.stringify(GetManagerConvertedCompanies) })
             }
-            return res.send({ status: 1, response: JSON.stringify(GetManagerConvertedCompanies) })
+            return res.send({ status: 1, data: JSON.stringify(GetManagerConvertedCompanies) })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }
@@ -46,9 +46,9 @@ module.exports = function () {
             let GetYourConvertedCompanies;
             GetYourConvertedCompanies = await db.findDocuments("afterSales", { assignedTo: req.userInfo.userId })
             if (GetYourConvertedCompanies.length === 0) {
-                return res.send({ status: 0, response: JSON.stringify(GetYourConvertedCompanies) })
+                return res.send({ status: 0, data: JSON.stringify(GetYourConvertedCompanies) })
             }
-            return res.send({ status: 1, response: JSON.stringify(GetYourConvertedCompanies) })
+            return res.send({ status: 1, data: JSON.stringify(GetYourConvertedCompanies) })
         } catch (error) {
             return res.send({ status: 0, response: error.message })
         }
