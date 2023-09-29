@@ -5,6 +5,7 @@ const companyControllers = require("../controllers/company")()
 const validate = require("../validation/validate")()
 
 const companyRouter = express.Router()
+companyRouter.post("/filterByDate",companyControllers.filterByDate)
 
 companyRouter.use(verifyUser)
 
@@ -16,6 +17,7 @@ companyRouter.post("/deleteCompany",authManager(),validate.deleteCompany,company
 companyRouter.post("/editCompany",authManager(),validate.editCompany,companyControllers.editCompany)
 companyRouter.get("/getConvertedCompanies",authManager(),companyControllers.getConvertedCompanies)
 companyRouter.post("/getOverallReport",companyControllers.getMergedReport)
+
 
 
 module.exports = companyRouter

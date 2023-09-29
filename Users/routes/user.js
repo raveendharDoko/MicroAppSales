@@ -15,11 +15,11 @@ userRouter.get("/getUnAssignedEmployee", authManager(), userControllers.unAssign
 userRouter.post("/assignEmployee", authManager(), validate.createNetwork, userControllers.createRelationship) // adding team members by manager
 userRouter.post("/getYourEmployee", userControllers.getYourEmployees)
 userRouter.post("/unAssignEmployee", authManager(), validate.removeFromNetwork, userControllers.removeFromNetwork)
-
+userRouter.post("/getMergerdReportBasedOnUser",userControllers.getMergerdReportBasedOnUser)
+userRouter.get("/getAllEmployees", userControllers.getAllEmployees)
 module.exports = userRouter
 
 
 // userRouter.post("/createPower",authSuperAdmin(), validate.createPower, userControllers.createPowers) // create Admin and manager by superAdmin 
 // userRouter.get("/getAllAdmin",authSuperAdmin(), userControllers.getAllAdmins)
 // userRouter.get("/getAllManager",authSuperAdmin(), userControllers.getAllManagers)
-// userRouter.get("/getAllEmployees", userControllers.getAllEmployees)

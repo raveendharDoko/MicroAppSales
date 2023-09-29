@@ -5,6 +5,7 @@ const salesCallController = require("../controllers/salesCallController")()
 const validate = require("../validation/validate")()
 
 const salesCallRouter = express.Router()
+salesCallRouter.post("/filterByDate",salesCallController.filterByDate)
 
 salesCallRouter.use(verifyUser)
 
