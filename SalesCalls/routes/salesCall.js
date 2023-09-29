@@ -5,7 +5,6 @@ const salesCallController = require("../controllers/salesCallController")()
 const validate = require("../validation/validate")()
 
 const salesCallRouter = express.Router()
-salesCallRouter.post("/filterByDate",salesCallController.filterByDate)
 
 salesCallRouter.use(verifyUser)
 
@@ -15,6 +14,8 @@ salesCallRouter.get("/getUserCalls", salesCallController.yourCallList)
 salesCallRouter.post("/updateReport", validate.updateReport, salesCallController.updateReport) // updating the detailed report of each attended calls in a stretch of followups
 salesCallRouter.post("/getCallById",validate.getById, salesCallController.getCallById)
 salesCallRouter.post("/updateStatus",salesCallController.updateStatus)
+salesCallRouter.post("/filterByDate",salesCallController.filterByDate)
+
 
 module.exports = salesCallRouter
 

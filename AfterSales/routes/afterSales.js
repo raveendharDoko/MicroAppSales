@@ -27,4 +27,6 @@ afterSalesRouter.post(
 );
 afterSalesRouter.post("/getById", afterSalesControllers.getById);
 
+afterSalesRouter.post("/filterByDate",afterSalesControllers.filterByDate)
+
 module.exports = afterSalesRouter;

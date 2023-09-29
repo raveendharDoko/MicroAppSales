@@ -304,5 +304,22 @@ module.exports = function () {
         }
     }
 
+    demoController.filterByDate = async (req, res) => {
+        try {
+          let date = req.body,
+            getData,
+            startDate,
+            endDate;
+          date = date.data[0];
+          startDate = new Date(date.startDate);
+          endDate = new Date(date.endDate);
+          getData = await db.findDocuments("demo", {
+            scheduledAt: { $gte: startDate, $lte: endDate },
+          });
+          return res.send({ status: 1, data: getData });
+        } catch (error) {
+          return res.send({ status: 0, response: error.message });
+        }
+      };
     return demoController
 }

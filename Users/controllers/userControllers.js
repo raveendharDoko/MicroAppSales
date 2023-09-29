@@ -106,6 +106,7 @@ module.exports = function () {
       let getManager = req.body,
         getUsers;
       getManager = getManager.data[0];
+
       getUsers = await db.findDocuments("users", { managedBy: getManager.id });
       if (getUsers.length === 0) {
         return res.send({ status: 1, data: JSON.stringify(getUsers) });
@@ -122,7 +123,7 @@ module.exports = function () {
         getUser,startDate,endDate,
         getInfo;
       getReports = getReports.data[0];
-      getUser = await db.findSingleDocument("users", { _id: getReports.id });
+      getUser = await db.findSingleDocument("users", { _id: getReports.userId });
       if (!getUser) {
         return res.send({ status: 0, response: "User not found" });
       }

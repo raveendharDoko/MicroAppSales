@@ -298,16 +298,42 @@ module.exports = function () {
   salesControllers.filterByDate = async (req, res) => {
     try {
       let date = req.body,
+        id,
         getData,
         startDate,
         endDate;
       date = date.data[0];
       startDate = new Date(date.startDate);
       endDate = new Date(date.endDate);
-      getData = await db.findDocuments("salesCall", {
-        createdAt: { $gte: startDate, $lte: endDate },
-      });
-      return res.send({ status: 1, data: getData });
+      id = new mongoose.Types.ObjectId(req.userInfo.userId);
+      getData = await SalesCalls.aggregate([
+        {
+          $match: {
+            $and: [
+              { assignedDate: { $gte: startDate, $lte: endDate } },
+              { assignedBy: id },
+            ],
+          },
+        },
+        {
+          $lookup: {
+            from: "companies",
+            localField: "companyId",
+            foreignField: "_id",
+            as: "getCompany",
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "assignedTo",
+            foreignField: "_id",
+            as: "getAssignedTo",
+          },
+        },
+      ]);
+
+      return res.send({ status: 1, data: JSON.stringify(getData) });
     } catch (error) {
       return res.send({ status: 0, response: error.message });
     }
