@@ -221,14 +221,11 @@ module.exports = function () {
   afterSalesControllers.filterByDate = async (req, res) => {
     try {
       let date = req.body,
-        id,
         getData,
         startDate,
         endDate;
-      date = date.data[0];
       startDate = new Date(date.startDate);
       endDate = new Date(date.endDate);
-      id = new mongoose.Types.ObjectId(req.userInfo.userId);
       getData = await AfterSales.aggregate([
         { $unwind: "$remarks" },
         {

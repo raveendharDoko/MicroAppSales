@@ -299,7 +299,11 @@ module.exports = function () {
     try {
       let date = req.body,
         payloadDate,
+        getDemoInfo,
         getDemoReports,
+        getSalesReports,
+        getAfterSalesInfo,
+        getAfterSalesReports,
         getData,
         startDate,
         endDate;
@@ -310,18 +314,25 @@ module.exports = function () {
         startDate: startDate,
         endDate: endDate,
       };
-      getDemoReports = await fetch(
-        "http:/localhost:9000/demoCalls/filterByDate",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: req.headers.authorization,
-          },
-          body: JSON.stringify(payloadDate),
-        }
-      );
-      getData = await SalesCalls.aggregate([
+      getDemoInfo = await fetch("http:/localhost:9000/demoCalls/filterByDate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: req.headers.authorization,
+        },
+        body: JSON.stringify(payloadDate),
+      });
+      getAfterSalesInfo = await fetch("http:/localhost:9000/afterSales/filterByDate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: req.headers.authorization,
+        },
+        body: JSON.stringify(payloadDate),
+      });
+      getDemoReports = await getDemoInfo.json();
+      getAfterSalesReports = await getAfterSalesInfo.json()
+      getSalesReports = await SalesCalls.aggregate([
         { $unwind: "$remarks" },
         {
           $match: { "remarks.enteredDate": { $gte: startDate, $lte: endDate } },
@@ -356,15 +367,15 @@ module.exports = function () {
         },
       ]);
 
-      if (getData.length === 0) {
+      if (getSalesReports.length === 0) {
         return res.send({ status: 1, data: JSON.stringify(getData) });
       }
-
+      getSalesReports ={status:1, response:"from sales calls", data: getSalesReports}
       return res.send({
-        getDemoReports,
         status: 1,
-        response: "From sales calls",
-        data: getData,
+        getSalesReport: getSalesReports,
+        getDemoReport : getDemoReports,
+        getAfterSalesReport : getAfterSalesReports
       });
     } catch (error) {
       return res.send({ status: 0, response: error.message });
