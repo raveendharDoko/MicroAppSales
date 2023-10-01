@@ -306,16 +306,7 @@ module.exports = function () {
       startDate = new Date(date.startDate);
       endDate = new Date(date.endDate);
       id = new mongoose.Types.ObjectId(req.userInfo.userId);
-      getData = await SalesCalls.aggregate([
-        // {
-        //   $match: {
-        //     $and: [
-        //       { assignedDate: { $gte: startDate, $lte: endDate } },
-        //       { assignedBy: id },
-        //       // { "remarks.$.enteredDate": { $gte: startDate, $lte: endDate } },
-        //     ],
-        //   },
-        // },
+      getData = await SalesCalls.aggregate(
         { $unwind: "$remarks" },
         {
           $match: { "remarks.enteredDate": { $gte: startDate, $lte: endDate } },
@@ -348,7 +339,7 @@ module.exports = function () {
             "getAssignedTo.username": 1,
           },
         },
-      ]);
+      );
 
       if (getData.length === 0) {
         return res.send({ status: 1, data: JSON.stringify(getData) });

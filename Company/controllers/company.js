@@ -38,19 +38,19 @@ module.exports = function () {
     try {
       let company = req.body;
       company = company.data[0].companies;
-      company.forEach((document) => {
-        const validationError = validateDocument(document);
-        if (!validationError) {
-          validDocuments.push(document);
-        } else {
-          invalidDocuments.push({
-            document,
-            error: validationError,
-          });
-        }
-      });
-      await db.insertManyDocuments("company", validDocuments);
-      return res.send({ status: 1, response: ` ${validDocuments.length} Companies added and ${invalidDocuments.length} contains duplication`});
+      // company.forEach((document) => {
+      //   const validationError = validateDocument(document);
+      //   if (!validationError) {
+      //     validDocuments.push(document);
+      //   } else {
+      //     invalidDocuments.push({
+      //       document,
+      //       error: validationError,
+      //     });
+      //   }
+      // });
+      await db.insertManyDocuments("company", company);
+      return res.send({ status: 1, response:  "Companies added and successfully"});
     } catch (error) {
       return res.send({ status: 0, response: error.message });
     }
