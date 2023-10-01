@@ -428,7 +428,7 @@ module.exports = function () {
       return res.send({
         status: 1,
         response: "from demo calls",
-        data: getData,
+        data: JSON.stringify(getData) ,
       });
     } catch (error) {
       return res.send({ status: 0, response: error.message });

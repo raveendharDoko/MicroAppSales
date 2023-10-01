@@ -370,7 +370,7 @@ module.exports = function () {
       if (getSalesReports.length === 0) {
         return res.send({ status: 1, data: JSON.stringify(getData) });
       }
-      getSalesReports ={status:1, response:"from sales calls", data: getSalesReports}
+      getSalesReports ={status:1, response:"from sales calls", data: JSON.stringify(getSalesReports) }
       return res.send({
         status: 1,
         getSalesReport: getSalesReports,

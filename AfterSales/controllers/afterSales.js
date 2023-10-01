@@ -269,7 +269,7 @@ module.exports = function () {
         });
       }
 
-      return res.send({ status: 1, data: getData });
+      return res.send({ status: 1, response:"from after sales", data: JSON.stringify(getData)});
     } catch (error) {
       return res.send({ status: 0, response: error.message });
     }
