@@ -50,7 +50,10 @@ module.exports = function () {
       //   }
       // });
       await db.insertManyDocuments("company", company);
-      return res.send({ status: 1, response:  "Companies added and successfully"});
+      return res.send({
+        status: 1,
+        response: "Companies added and successfully",
+      });
     } catch (error) {
       return res.send({ status: 0, response: error.message });
     }
@@ -175,7 +178,7 @@ module.exports = function () {
         return res.send({ status: 0, response: "No company found" });
       }
       if (getCompany.status === 1) {
-        return res.send({ status: 1, response: "No reports found" });
+        return res.send({ status: 1, data: JSON.stringify(getCompany) });
       }
       if (getCompany.status === 2) {
         id = new mongoose.Types.ObjectId(getReports.id);
