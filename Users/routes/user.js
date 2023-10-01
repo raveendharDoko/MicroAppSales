@@ -14,6 +14,7 @@ userRouter.use(verifyUser)
 userRouter.get("/getUnAssignedEmployee", authManager(), userControllers.unAssignedEmployee)
 userRouter.post("/assignEmployee", authManager(), validate.createNetwork, userControllers.createRelationship) // adding team members by manager
 userRouter.post("/getYourEmployee", userControllers.getYourEmployees)
+userRouter.post("/getUserDetailsById",userControllers.getById)
 userRouter.post("/unAssignEmployee", authManager(), validate.removeFromNetwork, userControllers.removeFromNetwork)
 userRouter.post("/getReportByUser",userControllers.getMergerdReportBasedOnUser)
 userRouter.get("/getAllEmployees", userControllers.getAllEmployees)

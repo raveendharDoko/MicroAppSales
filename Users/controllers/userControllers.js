@@ -116,6 +116,21 @@ module.exports = function () {
     }
   };
 
+  userControllers.getById = async (req, res) => {
+    try {
+      let getUser = req.body,
+        info;
+      getUser = getUser.data[0];
+      info = await db.findSingleDocument("users", { _id: getUser.userId });
+      if (!info) {
+        return res.send({ status: 0, response: "No user found" });
+      }
+      return res.send({ status: 1, data: JSON.stringify(info) });
+    } catch (error) {
+      return res.send({ status: 0, response: error.message });
+    }
+  };
+
   userControllers.getMergerdReportBasedOnUser = async (req, res) => {
     try {
       let getReports = req.body,
