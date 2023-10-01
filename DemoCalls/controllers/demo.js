@@ -371,27 +371,17 @@ module.exports = function () {
   demoController.filterByDate = async (req, res) => {
     try {
       let date = req.body,
-        id,
         getData,
         startDate,
         endDate;
-      date = date.data[0];
       startDate = new Date(date.startDate);
       endDate = new Date(date.endDate);
-      id = new mongoose.Types.ObjectId(req.userInfo.userId);
       getData = await Demo.aggregate([
-        // {
-        //   $match: {
-        //     $and: [
-        //       { assignedDate: { $gte: startDate, $lte: endDate } },
-        //       { assignedBy: id },
-        //       // { "remarks.$.enteredDate": { $gte: startDate, $lte: endDate } },
-        //     ],
-        //   },
-        // },
         { $unwind: "$remarks" },
         {
-          $match: { "remarks.enteredDate": { $gte: startDate, $lte: endDate } },
+          $match: {
+            "remarks.enteredDate": { $gte: startDate, $lte: endDate },
+          },
         },
         {
           $lookup: {
@@ -421,7 +411,7 @@ module.exports = function () {
           $project: {
             _id: 1,
             remarks: 1,
-            scheduledAt: 1,
+            assignedDate: 1,
             status: 1,
             "getCompany.companyName": 1,
             "getCompany.status": 1,
@@ -434,7 +424,12 @@ module.exports = function () {
       if (getData.length === 0) {
         return res.send({ status: 1, data: JSON.stringify(getData) });
       }
-      return res.send({ status: 1, data: getData });
+
+      return res.send({
+        status: 1,
+        response: "from demo calls",
+        data: getData,
+      });
     } catch (error) {
       return res.send({ status: 0, response: error.message });
     }

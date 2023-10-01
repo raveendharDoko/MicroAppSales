@@ -298,15 +298,30 @@ module.exports = function () {
   salesControllers.filterByDate = async (req, res) => {
     try {
       let date = req.body,
-        id,
+        payloadDate,
+        getDemoReports,
         getData,
         startDate,
         endDate;
       date = date.data[0];
       startDate = new Date(date.startDate);
       endDate = new Date(date.endDate);
-      id = new mongoose.Types.ObjectId(req.userInfo.userId);
-      getData = await SalesCalls.aggregate(
+      payloadDate = {
+        startDate: startDate,
+        endDate: endDate,
+      };
+      getDemoReports = await fetch(
+        "http:/localhost:9000/demoCalls/filterByDate",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: req.headers.authorization,
+          },
+          body: JSON.stringify(payloadDate),
+        }
+      );
+      getData = await SalesCalls.aggregate([
         { $unwind: "$remarks" },
         {
           $match: { "remarks.enteredDate": { $gte: startDate, $lte: endDate } },
@@ -339,13 +354,18 @@ module.exports = function () {
             "getAssignedTo.username": 1,
           },
         },
-      );
+      ]);
 
       if (getData.length === 0) {
         return res.send({ status: 1, data: JSON.stringify(getData) });
       }
 
-      return res.send({ status: 1, data: getData });
+      return res.send({
+        getDemoReports,
+        status: 1,
+        response: "From sales calls",
+        data: getData,
+      });
     } catch (error) {
       return res.send({ status: 0, response: error.message });
     }
