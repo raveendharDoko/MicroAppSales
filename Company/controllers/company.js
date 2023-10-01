@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const db = require("../models/mongodb.js");
 const Company = require("../schema/company.js");
+const { validateDocument } = require("../models/common.js");
 module.exports = function () {
   let companyControllers = {};
 
@@ -25,6 +26,31 @@ module.exports = function () {
       }
       await db.insertSingleDocument("company", addCompany);
       return res.send({ status: 1, response: "Company created" });
+    } catch (error) {
+      return res.send({ status: 0, response: error.message });
+    }
+  };
+
+  const validDocuments = [];
+  const invalidDocuments = [];
+
+  companyControllers.addXlCompanies = async (req, res) => {
+    try {
+      let company = req.body;
+      company = company.data[0].companies;
+      company.forEach((document) => {
+        const validationError = validateDocument(document);
+        if (!validationError) {
+          validDocuments.push(document);
+        } else {
+          invalidDocuments.push({
+            document,
+            error: validationError,
+          });
+        }
+      });
+      await db.insertManyDocuments("company", validDocuments);
+      return res.send({ status: 1, response: ` ${validDocuments.length} Companies added and ${invalidDocuments.length} contains duplication`});
     } catch (error) {
       return res.send({ status: 0, response: error.message });
     }
@@ -414,7 +440,6 @@ module.exports = function () {
       return res.send({ status: 0, response: error.message });
     }
   };
-
 
   return companyControllers;
 };

@@ -13,7 +13,6 @@ mongoose.connect(serverConnections.MONGODB)
 
 
 const app = express()
-app.options("*", cors());
 
 app.use(
     cors({

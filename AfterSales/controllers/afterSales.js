@@ -187,9 +187,95 @@ module.exports = function () {
       date = date.data[0];
       startDate = new Date(date.startDate);
       endDate = new Date(date.endDate);
-      getData = await db.findDocuments("afterSales", {
-        createdAt: { $gte: startDate, $lte: endDate },
-      });
+      getData = await AfterSales.aggregate([
+        {
+          $match: { createdAt: { $gte: startDate, $lte: endDate } },
+        },
+        {
+          $lookup: {
+            from: "companies",
+            localField: "companyId",
+            foreignField: "_id",
+            as: "getCompany",
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "assignedTo",
+            foreignField: "_id",
+            as: "getAssignedTo",
+          },
+        },
+      ]);
+
+      if(getData.length === 0){
+        return res.send({status:1, data: JSON.stringify(getData)})
+      }
+
+      return res.send({ status: 1, data:JSON.stringify(getData) });
+    } catch (error) {
+      return res.send({ status: 0, response: error.message });
+    }
+  };
+
+  afterSalesControllers.filterByDate = async (req, res) => {
+    try {
+      let date = req.body,
+        id,
+        getData,
+        startDate,
+        endDate;
+      date = date.data[0];
+      startDate = new Date(date.startDate);
+      endDate = new Date(date.endDate);
+      getData = await Demo.aggregate([
+        // {
+        //   $match: {
+        //     $and: [
+        //       { assignedDate: { $gte: startDate, $lte: endDate } },
+        //       { assignedBy: id },
+        //       // { "remarks.$.enteredDate": { $gte: startDate, $lte: endDate } },
+        //     ],
+        //   },
+        // },
+        { $unwind: "$remarks" },
+        {
+          $match: { "remarks.enteredDate": { $gte: startDate, $lte: endDate } },
+        },
+        {
+          $lookup: {
+            from: "companies",
+            localField: "companyId",
+            foreignField: "_id",
+            as: "getCompany",
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "assignedTo",
+            foreignField: "_id",
+            as: "getAssignedTo",
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            remarks: 1,
+            scheduledAt: 1,
+            status: 1,
+            "getCompany.companyName": 1,
+            "getCompany.status": 1,
+            "getCompany.companyMobileNumber": 1,
+            "getAssignedTo.username": 1,
+          },
+        },
+      ]);
+
+      if (getData.length === 0) {
+        return res.send({ status: 1, data: JSON.stringify(getData) });
+      }
       return res.send({ status: 1, data: getData });
     } catch (error) {
       return res.send({ status: 0, response: error.message });

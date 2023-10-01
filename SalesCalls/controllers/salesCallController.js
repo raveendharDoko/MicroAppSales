@@ -289,7 +289,7 @@ module.exports = function () {
         obj.remarks = call.remarks;
         return obj;
       });
-      return res.send({ status: 1, data: info });
+      return res.send({ status: 1, data: JSON.stringify(info) });
     } catch (error) {
       return res.send({ status: 0, response: error.message });
     }
@@ -307,13 +307,18 @@ module.exports = function () {
       endDate = new Date(date.endDate);
       id = new mongoose.Types.ObjectId(req.userInfo.userId);
       getData = await SalesCalls.aggregate([
+        // {
+        //   $match: {
+        //     $and: [
+        //       { assignedDate: { $gte: startDate, $lte: endDate } },
+        //       { assignedBy: id },
+        //       // { "remarks.$.enteredDate": { $gte: startDate, $lte: endDate } },
+        //     ],
+        //   },
+        // },
+        { $unwind: "$remarks" },
         {
-          $match: {
-            $and: [
-              { assignedDate: { $gte: startDate, $lte: endDate } },
-              { assignedBy: id },
-            ],
-          },
+          $match: { "remarks.enteredDate": { $gte: startDate, $lte: endDate } },
         },
         {
           $lookup: {
@@ -331,9 +336,25 @@ module.exports = function () {
             as: "getAssignedTo",
           },
         },
+        {
+          $project: {
+            _id: 1,
+            remarks: 1,
+            assignedDate: 1,
+            status: 1,
+            "getCompany.companyName": 1,
+            "getCompany.status": 1,
+            "getCompany.companyMobileNumber": 1,
+            "getAssignedTo.username": 1,
+          },
+        },
       ]);
 
-      return res.send({ status: 1, data: JSON.stringify(getData) });
+      if (getData.length === 0) {
+        return res.send({ status: 1, data: JSON.stringify(getData) });
+      }
+
+      return res.send({ status: 1, data: getData });
     } catch (error) {
       return res.send({ status: 0, response: error.message });
     }

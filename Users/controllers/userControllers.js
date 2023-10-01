@@ -106,7 +106,6 @@ module.exports = function () {
       let getManager = req.body,
         getUsers;
       getManager = getManager.data[0];
-
       getUsers = await db.findDocuments("users", { managedBy: getManager.id });
       if (getUsers.length === 0) {
         return res.send({ status: 1, data: JSON.stringify(getUsers) });
@@ -120,15 +119,22 @@ module.exports = function () {
   userControllers.getMergerdReportBasedOnUser = async (req, res) => {
     try {
       let getReports = req.body,
-        getUser,startDate,endDate,
-        getInfo;
+        getUser,
+        startDate,
+        endDate,
+        getInfo,
+        getCompanies;
       getReports = getReports.data[0];
-      getUser = await db.findSingleDocument("users", { _id: getReports.userId });
+      getCompanies = await fetch("http:/localhost:9000/company/getAllCompany");
+      console.log(getCompanies);
+      getUser = await db.findSingleDocument("users", {
+        _id: getReports.userId,
+      });
       if (!getUser) {
         return res.send({ status: 0, response: "User not found" });
       }
-       startDate = new Date(getReports.startDate);
-       endDate = new Date(getReports.endDate);
+      startDate = new Date(getReports.startDate);
+      endDate = new Date(getReports.endDate);
 
       getInfo = await user.aggregate([
         {
@@ -188,7 +194,7 @@ module.exports = function () {
                 },
               },
             },
-            AfterSalesReports:{
+            AfterSalesReports: {
               $filter: {
                 input: "$AfterSalesReports",
                 as: "data",
@@ -203,7 +209,8 @@ module.exports = function () {
           },
         },
       ]);
-      return res.send({ stauts: 1, data: getInfo });
+
+      return res.send({ status: 1, getCompanies, data: getInfo });
     } catch (error) {
       return res.send({ status: 0, response: error.message });
     }
@@ -252,7 +259,6 @@ module.exports = function () {
       return res.send({ status: 0, response: error.message });
     }
   };
-
 
   return userControllers;
 };

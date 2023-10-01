@@ -35,4 +35,5 @@ const companySchema = mongoose.Schema({
     versionKey:false
 })
 
+
 module.exports = mongoose.model("company",companySchema)

@@ -1,3 +1,5 @@
+const Company = require("../schema/company")
+const mongoose = require("mongoose")
 const authManager = ()=>{
     return (req, res, next) => {
         const roleCheck = req.userInfo.role;
@@ -9,4 +11,11 @@ const authManager = ()=>{
       };
 }
 
-module.exports = {authManager}
+const validateDocument = (document) => {
+  
+  const Model = mongoose.model("company");
+  const newDocument = new Model(document);
+  return newDocument.validateSync();
+};
+
+module.exports = {authManager,validateDocument}
