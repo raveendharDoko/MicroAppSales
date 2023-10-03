@@ -37,7 +37,6 @@ module.exports = function () {
         Exist,
         notExist,
         report,
-        getdata,
         findExistCompanies,
       getCompanies;
       company = company.data[0].companies;
@@ -184,7 +183,7 @@ module.exports = function () {
         return res.send({ status: 0, response: "No company found" });
       }
       if (getCompany.status === 1) {
-        return res.send({ status: 1, data: JSON.stringify(getCompany) });
+        return res.send({ status: 1, data: JSON.stringify([getCompany]) });
       }
       if (getCompany.status === 2) {
         id = new mongoose.Types.ObjectId(getReports.id);

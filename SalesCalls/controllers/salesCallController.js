@@ -301,6 +301,8 @@ module.exports = function () {
         payloadDate,
         getDemoInfo,
         getDemoReports,
+        getSalesInfos,
+        getSalesAssigns,
         getSalesReports,
         getAfterSalesInfo,
         getAfterSalesReports,
@@ -322,16 +324,62 @@ module.exports = function () {
         },
         body: JSON.stringify(payloadDate),
       });
-      getAfterSalesInfo = await fetch("http:/localhost:9000/afterSales/filterByDate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: req.headers.authorization,
-        },
-        body: JSON.stringify(payloadDate),
-      });
+      getAfterSalesInfo = await fetch(
+        "http:/localhost:9000/afterSales/filterByDate",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: req.headers.authorization,
+          },
+          body: JSON.stringify(payloadDate),
+        }
+      );
       getDemoReports = await getDemoInfo.json();
-      getAfterSalesReports = await getAfterSalesInfo.json()
+      getAfterSalesReports = await getAfterSalesInfo.json();
+      getSalesAssigns = await SalesCalls.aggregate([
+        { $unwind: "$assignedDate" },
+        {
+          $match: { assignedDate: { $gte: startDate, $lte: endDate } },
+        },
+        {
+          $lookup: {
+            from: "companies",
+            localField: "companyId",
+            foreignField: "_id",
+            as: "getCompany",
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "assignedTo",
+            foreignField: "_id",
+            as: "getAssignedTo",
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "assignedBy",
+            foreignField: "_id",
+            as: "getAssignedBy",
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            remarks: 1,
+            assignedDate: 1,
+            status: 1,
+            "getCompany.companyName": 1,
+            "getCompany.status": 1,
+            "getCompany.companyMobileNumber": 1,
+            "getAssignedTo.username": 1,
+            "getAssignedBy.username": 1,
+          },
+        },
+      ]);
       getSalesReports = await SalesCalls.aggregate([
         { $unwind: "$remarks" },
         {
@@ -370,13 +418,53 @@ module.exports = function () {
       if (getSalesReports.length === 0) {
         return res.send({ status: 1, data: JSON.stringify(getData) });
       }
-      getSalesReports ={status:1, response:"from sales calls", data: JSON.stringify(getSalesReports) }
+      getSalesInfos = {
+        status: 1,
+        response: "from sales calls",
+        data: [
+          { getSalesReport: getSalesReports },
+          { getSalesAssign: getSalesAssigns },
+        ],
+      };
       return res.send({
         status: 1,
-        getSalesReport: getSalesReports,
-        getDemoReport : getDemoReports,
-        getAfterSalesReport : getAfterSalesReports
+        getSalesInfo: getSalesInfos,
+        getDemoReport: getDemoReports,
+        getAfterSalesReport: getAfterSalesReports,
       });
+    } catch (error) {
+      return res.send({ status: 0, response: error.message });
+    }
+  };
+
+  salesControllers.getAllSalesWithCompany = async (req, res) => {
+    try {
+      let getAllSalesWithCompany,info;
+      getAllSalesWithCompany = await SalesCalls.aggregate([
+        {
+          $lookup: {
+            from: "companies",
+            localField: "companyId",
+            foreignField: "_id",
+            as: "getCompany",
+          },
+        },
+        {$project:{_id:1,companyId:1,"getCompany.companyName":1}}
+      ]);
+      if (getAllSalesWithCompany.length === 0) {
+        return res.send({
+          status: 1,
+          data: JSON.stringify(getAllSalesWithCompany),
+        });
+      }
+      info = getAllSalesWithCompany.map((call) => {
+        let obj = {};
+        obj.callId = call._id;
+        obj.companyId = call.companyId;
+        obj.companyName = call.getCompany[0].companyName;
+        return obj;
+      });
+      return res.send({ status: 1, data: JSON.stringify(info) });
     } catch (error) {
       return res.send({ status: 0, response: error.message });
     }

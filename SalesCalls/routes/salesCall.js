@@ -14,6 +14,7 @@ salesCallRouter.get("/getUserCalls", salesCallController.yourCallList)
 salesCallRouter.post("/updateReport", validate.updateReport, salesCallController.updateReport) // updating the detailed report of each attended calls in a stretch of followups
 salesCallRouter.post("/getCallById",validate.getById, salesCallController.getCallById)
 salesCallRouter.post("/updateStatus",salesCallController.updateStatus)
+salesCallRouter.get("/getAllSales",salesCallController.getAllSalesWithCompany)
 salesCallRouter.post("/filterByDate",salesCallController.filterByDate)
 
 

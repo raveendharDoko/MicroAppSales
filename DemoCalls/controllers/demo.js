@@ -1,5 +1,4 @@
-const salesCallController =
-  require("../../SalesCalls/controllers/salesCallController.js")();
+const salesCallController = require("../../SalesCalls/controllers/salesCallController.js")();
 const db = require("../models/mongodb.js");
 const Demo = require("../schema/demo.js");
 const mongoose = require("mongoose");
@@ -371,12 +370,68 @@ module.exports = function () {
   demoController.filterByDate = async (req, res) => {
     try {
       let date = req.body,
-        getData,
+      getDemoInfos,
+      getDemoAssigns,
+      getDemoReports,
         startDate,
         endDate;
       startDate = new Date(date.startDate);
       endDate = new Date(date.endDate);
-      getData = await Demo.aggregate([
+      getDemoAssigns = await Demo.aggregate([
+        { $unwind: "$scheduledAt" },
+        {
+          $match: {
+            "scheduledAt": { $gte: startDate, $lte: endDate },
+          },
+        },
+        {
+          $lookup: {
+            from: "salescalls",
+            localField: "callId",
+            foreignField: "_id",
+            as: "getSales",
+          },
+        },
+        {
+          $lookup: {
+            from: "companies",
+            localField: "getSales.companyId",
+            foreignField: "_id",
+            as: "getCompany",
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "assignedTo",
+            foreignField: "_id",
+            as: "getAssignedTo",
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "assignedBy",
+            foreignField: "_id",
+            as: "getAssignedBy",
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            remarks: 1,
+            assignedDate: 1,
+            status: 1,
+            "getCompany.companyName": 1,
+            "getCompany.status": 1,
+            "getCompany.companyMobileNumber": 1,
+            "getAssignedTo.username": 1,
+            "getAssignedBy.username":1
+          },
+        },
+      ]);
+
+      getDemoReports = await Demo.aggregate([
         { $unwind: "$remarks" },
         {
           $match: {
@@ -421,14 +476,13 @@ module.exports = function () {
         },
       ]);
 
-      if (getData.length === 0) {
-        return res.send({ status: 1, data: JSON.stringify(getData) });
+      if (getDemoReports.length === 0 && getDemoAssigns.length === 0 ) {
+        return res.send({ status: 1, data: JSON.stringify([]) });
       }
-
       return res.send({
         status: 1,
         response: "from demo calls",
-        data: JSON.stringify(getData) ,
+        data: [{getDemoAssign:getDemoAssigns,getDemoReport:getDemoReports}] ,
       });
     } catch (error) {
       return res.send({ status: 0, response: error.message });
