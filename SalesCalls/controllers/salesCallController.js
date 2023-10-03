@@ -306,7 +306,6 @@ module.exports = function () {
         getSalesReports,
         getAfterSalesInfo,
         getAfterSalesReports,
-        getData,
         startDate,
         endDate;
       date = date.data[0];
@@ -425,22 +424,21 @@ module.exports = function () {
       ]);
 
       if (getSalesReports.length === 0 && getSalesAssigns.length === 0) {
-        return res.send({ status: 1, data: JSON.stringify([]) });
+        return res.send({ status: 1, data: [] });
       }
       getSalesInfos = {
         status: 1,
         response: "from sales calls",
-
-        data: JSON.stringify([
-          { getSalesReport: getSalesReports },
-          { getSalesAssign: getSalesAssigns },
-        ]),
+        getSalesReport: getSalesReports,
+        getSalesAssign: getSalesAssigns,
       };
       return res.send({
         status: 1,
-        getSalesInfo: getSalesInfos,
-        getDemoReport: getDemoReports,
-        getAfterSalesReport: getAfterSalesReports,
+        data: JSON.stringify({
+          getSalesInfo: getSalesInfos,
+          getDemoReport: getDemoReports,
+          getAfterSalesReport: getAfterSalesReports,
+        }),
       });
     } catch (error) {
       return res.send({ status: 0, response: error.message });

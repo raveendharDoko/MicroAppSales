@@ -321,17 +321,15 @@ module.exports = function () {
         return res.send({
           status: 1,
           response: "From afterSales",
-          data: JSON.stringify([]),
+          data: [],
         });
       }
 
       return res.send({
         status: 1,
         response: "from after sales",
-        data: JSON.stringify([
-          { getAfterSalesAssign: getAfterSalesAssigns },
-          { getAfterSalesReport: getAfterSalesReports },
-        ]),
+        getAfterSalesAssign: getAfterSalesAssigns,
+        getAfterSalesReport: getAfterSalesReports,
       });
     } catch (error) {
       return res.send({ status: 0, response: error.message });

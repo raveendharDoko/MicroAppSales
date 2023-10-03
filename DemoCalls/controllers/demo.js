@@ -1,4 +1,5 @@
-const salesCallController = require("../../SalesCalls/controllers/salesCallController.js")();
+const salesCallController =
+  require("../../SalesCalls/controllers/salesCallController.js")();
 const db = require("../models/mongodb.js");
 const Demo = require("../schema/demo.js");
 const mongoose = require("mongoose");
@@ -370,8 +371,8 @@ module.exports = function () {
   demoController.filterByDate = async (req, res) => {
     try {
       let date = req.body,
-      getDemoAssigns,
-      getDemoReports,
+        getDemoAssigns,
+        getDemoReports,
         startDate,
         endDate;
       startDate = new Date(date.startDate);
@@ -380,7 +381,7 @@ module.exports = function () {
         { $unwind: "$scheduledAt" },
         {
           $match: {
-            "scheduledAt": { $gte: startDate, $lte: endDate },
+            scheduledAt: { $gte: startDate, $lte: endDate },
           },
         },
         {
@@ -425,7 +426,7 @@ module.exports = function () {
             "getCompany.status": 1,
             "getCompany.companyMobileNumber": 1,
             "getAssignedTo.username": 1,
-            "getAssignedBy.username":1
+            "getAssignedBy.username": 1,
           },
         },
       ]);
@@ -479,18 +480,19 @@ module.exports = function () {
             "getCompany.status": 1,
             "getCompany.companyMobileNumber": 1,
             "getAssignedTo.username": 1,
-            "getAssignedBy.username":1
+            "getAssignedBy.username": 1,
           },
         },
       ]);
 
-      if (getDemoReports.length === 0 && getDemoAssigns.length === 0 ) {
-        return res.send({ status: 1, data: JSON.stringify([]) });
+      if (getDemoReports.length === 0 && getDemoAssigns.length === 0) {
+        return res.send({ status: 1, data: [] });
       }
       return res.send({
         status: 1,
         response: "from demo calls",
-        data: JSON.stringify([{getDemoAssign:getDemoAssigns,getDemoReport:getDemoReports}])  ,
+        getDemoAssign: getDemoAssigns,
+        getDemoReport: getDemoReports,
       });
     } catch (error) {
       return res.send({ status: 0, response: error.message });
