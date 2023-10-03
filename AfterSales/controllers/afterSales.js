@@ -125,55 +125,54 @@ module.exports = function () {
   afterSalesControllers.getById = async (req, res) => {
     try {
       let getId = req.body,
-        getData,id;
+        getData,
+        id;
       getId = getId.data[0];
-      id =  new mongoose.Types.ObjectId(getId.id)
-      getData = await AfterSales.aggregate(
-        [
-          { $match: { _id: id } },
-          {
-            $lookup: {
-              from: "companies",
-              localField: "companyId",
-              foreignField: "_id",
-              as: "getCompany",
-            },
+      id = new mongoose.Types.ObjectId(getId.id);
+      getData = await AfterSales.aggregate([
+        { $match: { _id: id } },
+        {
+          $lookup: {
+            from: "companies",
+            localField: "companyId",
+            foreignField: "_id",
+            as: "getCompany",
           },
-          {
-            $lookup: {
-              from: "users",
-              localField: "assignedTo",
-              foreignField: "_id",
-              as: "getAssignedTo",
-            },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "assignedTo",
+            foreignField: "_id",
+            as: "getAssignedTo",
           },
-          {
-            $lookup: {
-              from: "users",
-              localField: "assignedBy",
-              foreignField: "_id",
-              as: "getAssignedBy",
-            },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "assignedBy",
+            foreignField: "_id",
+            as: "getAssignedBy",
           },
-          {
-            $project: {
-              _id: 1,
-              remarks: 1,
-              status: 1,
-              createdAt:1,
-              "getCompany.companyName": 1,
-              "getCompany.status": 1,
-              "getCompany.companyMobileNumber": 1,
-              "getAssignedTo.username": 1,
-              "getAssignedBy.username":1
-            },
+        },
+        {
+          $project: {
+            _id: 1,
+            remarks: 1,
+            status: 1,
+            createdAt: 1,
+            "getCompany.companyName": 1,
+            "getCompany.status": 1,
+            "getCompany.companyMobileNumber": 1,
+            "getAssignedTo.username": 1,
+            "getAssignedBy.username": 1,
           },
-        ]
-        );
+        },
+      ]);
       if (getData.length === 0) {
         return res.send({ status: 1, response: "No sales call found" });
       }
-      return res.send({ status: 1, data:JSON.stringify(getData) });
+      return res.send({ status: 1, data: JSON.stringify(getData) });
     } catch (error) {
       return res.send({ status: 0, response: error.message });
     }
@@ -221,12 +220,57 @@ module.exports = function () {
   afterSalesControllers.filterByDate = async (req, res) => {
     try {
       let date = req.body,
-        getData,
+        getAfterSalesAssigns,
+        getAfterSalesReports,
         startDate,
         endDate;
       startDate = new Date(date.startDate);
       endDate = new Date(date.endDate);
-      getData = await AfterSales.aggregate([
+      getAfterSalesAssigns = await AfterSales.aggregate([
+        { $unwind: "$createdAt" },
+        {
+          $match: { createdAt: { $gte: startDate, $lte: endDate } },
+        },
+        {
+          $lookup: {
+            from: "companies",
+            localField: "companyId",
+            foreignField: "_id",
+            as: "getCompany",
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "assignedTo",
+            foreignField: "_id",
+            as: "getAssignedTo",
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "assignedBy",
+            foreignField: "_id",
+            as: "getAssignedBy",
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            remarks: 1,
+            createAt: 1,
+            status: 1,
+            "getCompany.companyName": 1,
+            "getCompany.status": 1,
+            "getCompany.companyMobileNumber": 1,
+            "getAssignedTo.username": 1,
+            "getAssignedBy.username": 1,
+          },
+        },
+      ]);
+
+      getAfterSalesReports = await AfterSales.aggregate([
         { $unwind: "$remarks" },
         {
           $match: { "remarks.createdAt": { $gte: startDate, $lte: endDate } },
@@ -248,28 +292,47 @@ module.exports = function () {
           },
         },
         {
+          $lookup: {
+            from: "users",
+            localField: "assignedBy",
+            foreignField: "_id",
+            as: "getAssignedBy",
+          },
+        },
+        {
           $project: {
             _id: 1,
             remarks: 1,
-            assignedDate: 1,
+            createdAt: 1,
             status: 1,
             "getCompany.companyName": 1,
             "getCompany.status": 1,
             "getCompany.companyMobileNumber": 1,
             "getAssignedTo.username": 1,
+            "getAssignedBy.username": 1,
           },
         },
       ]);
 
-      if (getData.length === 0) {
+      if (
+        getAfterSalesReports.length === 0 &&
+        getAfterSalesAssigns.length === 0
+      ) {
         return res.send({
           status: 1,
           response: "From afterSales",
-          data: JSON.stringify(getData),
+          data: JSON.stringify([]),
         });
       }
 
-      return res.send({ status: 1, response:"from after sales", data: JSON.stringify(getData)});
+      return res.send({
+        status: 1,
+        response: "from after sales",
+        data: JSON.stringify([
+          { getAfterSalesAssign: getAfterSalesAssigns },
+          { getAfterSalesReport: getAfterSalesReports },
+        ]),
+      });
     } catch (error) {
       return res.send({ status: 0, response: error.message });
     }

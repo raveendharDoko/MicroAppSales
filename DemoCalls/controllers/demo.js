@@ -370,7 +370,6 @@ module.exports = function () {
   demoController.filterByDate = async (req, res) => {
     try {
       let date = req.body,
-      getDemoInfos,
       getDemoAssigns,
       getDemoReports,
         startDate,
@@ -420,7 +419,7 @@ module.exports = function () {
           $project: {
             _id: 1,
             remarks: 1,
-            assignedDate: 1,
+            scheduledAt: 1,
             status: 1,
             "getCompany.companyName": 1,
             "getCompany.status": 1,
@@ -463,15 +462,24 @@ module.exports = function () {
           },
         },
         {
+          $lookup: {
+            from: "users",
+            localField: "assignedBy",
+            foreignField: "_id",
+            as: "getAssignedBy",
+          },
+        },
+        {
           $project: {
             _id: 1,
             remarks: 1,
-            assignedDate: 1,
+            scheduledAt: 1,
             status: 1,
             "getCompany.companyName": 1,
             "getCompany.status": 1,
             "getCompany.companyMobileNumber": 1,
             "getAssignedTo.username": 1,
+            "getAssignedBy.username":1
           },
         },
       ]);
@@ -482,7 +490,7 @@ module.exports = function () {
       return res.send({
         status: 1,
         response: "from demo calls",
-        data: [{getDemoAssign:getDemoAssigns,getDemoReport:getDemoReports}] ,
+        data: JSON.stringify([{getDemoAssign:getDemoAssigns,getDemoReport:getDemoReports}])  ,
       });
     } catch (error) {
       return res.send({ status: 0, response: error.message });

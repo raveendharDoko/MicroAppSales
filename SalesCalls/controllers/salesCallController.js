@@ -402,6 +402,14 @@ module.exports = function () {
           },
         },
         {
+          $lookup: {
+            from: "users",
+            localField: "assignedBy",
+            foreignField: "_id",
+            as: "getAssignedBy",
+          },
+        },
+        {
           $project: {
             _id: 1,
             remarks: 1,
@@ -411,20 +419,22 @@ module.exports = function () {
             "getCompany.status": 1,
             "getCompany.companyMobileNumber": 1,
             "getAssignedTo.username": 1,
+            "getAssignedBy.username": 1,
           },
         },
       ]);
 
-      if (getSalesReports.length === 0) {
-        return res.send({ status: 1, data: JSON.stringify(getData) });
+      if (getSalesReports.length === 0 && getSalesAssigns.length === 0) {
+        return res.send({ status: 1, data: JSON.stringify([]) });
       }
       getSalesInfos = {
         status: 1,
         response: "from sales calls",
-        data: [
+
+        data: JSON.stringify([
           { getSalesReport: getSalesReports },
           { getSalesAssign: getSalesAssigns },
-        ],
+        ]),
       };
       return res.send({
         status: 1,
@@ -439,7 +449,7 @@ module.exports = function () {
 
   salesControllers.getAllSalesWithCompany = async (req, res) => {
     try {
-      let getAllSalesWithCompany,info;
+      let getAllSalesWithCompany, info;
       getAllSalesWithCompany = await SalesCalls.aggregate([
         {
           $lookup: {
@@ -449,7 +459,7 @@ module.exports = function () {
             as: "getCompany",
           },
         },
-        {$project:{_id:1,companyId:1,"getCompany.companyName":1}}
+        { $project: { _id: 1, companyId: 1, "getCompany.companyName": 1 } },
       ]);
       if (getAllSalesWithCompany.length === 0) {
         return res.send({
