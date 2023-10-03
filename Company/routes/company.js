@@ -6,7 +6,7 @@ const validate = require("../validation/validate")();
 
 const companyRouter = express.Router();
 
-companyRouter.use(verifyUser);
+// companyRouter.use(verifyUser);
 
 companyRouter.post(
   "/addCompany",
@@ -16,7 +16,7 @@ companyRouter.post(
 );
 companyRouter.post(
   "/uploadCompany",
-  authManager(),
+  // authManager(),
   companyControllers.addXlCompanies
 );
 companyRouter.get(

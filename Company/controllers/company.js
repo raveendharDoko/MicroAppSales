@@ -1,7 +1,6 @@
 const { default: mongoose } = require("mongoose");
 const db = require("../models/mongodb.js");
 const Company = require("../schema/company.js");
-const { validateDocument } = require("../models/common.js");
 module.exports = function () {
   let companyControllers = {};
 
@@ -31,28 +30,35 @@ module.exports = function () {
     }
   };
 
-  const validDocuments = [];
-  const invalidDocuments = [];
-
   companyControllers.addXlCompanies = async (req, res) => {
     try {
-      let company = req.body;
+      let company = req.body,
+        checkIfExist,
+        Exist,
+        notExist,
+        report,
+        getdata,
+        findExistCompanies,
+      getCompanies;
       company = company.data[0].companies;
-      // company.forEach((document) => {
-      //   const validationError = validateDocument(document);
-      //   if (!validationError) {
-      //     validDocuments.push(document);
-      //   } else {
-      //     invalidDocuments.push({
-      //       document,
-      //       error: validationError,
-      //     });
-      //   }
-      // });
-      await db.insertManyDocuments("company", company);
+      getCompanies = await db.findDocuments("company");
+
+      findExistCompanies = (arr1, arr2) => {
+        checkIfExist = new Map();
+        arr2.forEach((comp) => {
+          checkIfExist.set(comp.companyName, comp);
+        });
+        notExist = arr1.filter((comp) => !checkIfExist.has(comp.companyName));
+        Exist = arr1.filter((comp) => checkIfExist.has(comp.companyName));
+        report = { notExist, Exist };
+        return report;
+      };
+
+      getdata = await findExistCompanies(company, getCompanies);
+      await db.insertManyDocuments("company", report.notExist);
       return res.send({
         status: 1,
-        response: "Companies added and successfully",
+        response: `${report.notExist.length} Companies added,${report.Exist.length} duplicates found`,
       });
     } catch (error) {
       return res.send({ status: 0, response: error.message });
@@ -211,6 +217,7 @@ module.exports = function () {
               city: 1,
               state: 1,
               status: 1,
+              pincode:1,
               "getSalesUser.username": 1,
               "getSales.remarks": 1,
               "getSales.status": 1,
@@ -233,6 +240,7 @@ module.exports = function () {
           obj.city = call.city;
           obj.state = call.state;
           obj.status = call.status;
+          obj.pincode = call.pincode;
           obj.getSalesUser = call.getSalesUser[0].username;
           obj.getSalesRemarks = call.getSales[0].remarks;
           obj.getSalesStatus = call.getSales[0].status;
@@ -289,6 +297,7 @@ module.exports = function () {
               city: 1,
               state: 1,
               status: 1,
+              pincode:1,
               "getSalesUser.username": 1,
               "getSales.remarks": 1,
               "getSales.status": 1,
@@ -316,6 +325,7 @@ module.exports = function () {
           obj.city = call.city;
           obj.state = call.state;
           obj.status = call.status;
+          obj.pincode = call.pincode;
           obj.getSalesUser = call.getSalesUser[0].username;
           obj.getSalesRemarks = call.getSales[0].remarks;
           obj.getSalesStatus = call.getSales[0].status;
@@ -395,6 +405,7 @@ module.exports = function () {
               city: 1,
               state: 1,
               status: 1,
+              pincode:1,
               "getSalesUser.username": 1,
               "getSales.remarks": 1,
               "getSales.status": 1,
@@ -424,6 +435,7 @@ module.exports = function () {
           obj.city = call.city;
           obj.state = call.state;
           obj.status = call.status;
+          obj.pincode = call.pincode;
           obj.getSalesUser = call.getSalesUser[0].username;
           obj.getSalesRemarks = call.getSales[0].remarks;
           obj.getSalesStatus = call.getSales[0].status;

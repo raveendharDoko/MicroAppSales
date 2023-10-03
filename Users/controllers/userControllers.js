@@ -225,7 +225,7 @@ module.exports = function () {
         },
       ]);
 
-      return res.send({ status: 1, getCompanies, data: getInfo });
+      return res.send({ status: 1, getCompanies, data: JSON.stringify(getInfo) });
     } catch (error) {
       return res.send({ status: 0, response: error.message });
     }
