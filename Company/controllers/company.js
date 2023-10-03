@@ -1,6 +1,10 @@
 const { default: mongoose } = require("mongoose");
 const db = require("../models/mongodb.js");
 const Company = require("../schema/company.js");
+const ejs = require("ejs");
+const path = require("path");
+const pdf = require("html-pdf-node");
+const fs = require("fs");
 module.exports = function () {
   let companyControllers = {};
 
@@ -38,7 +42,7 @@ module.exports = function () {
         notExist,
         report,
         findExistCompanies,
-      getCompanies;
+        getCompanies;
       company = company.data[0].companies;
       getCompanies = await db.findDocuments("company");
 
@@ -174,7 +178,9 @@ module.exports = function () {
         getInfo,
         id,
         info,
-        getCompany;
+        getCompany,
+        paths,
+        image;
       getReports = getReports.data[0];
       getCompany = await db.findSingleDocument("company", {
         _id: getReports.id,
@@ -216,7 +222,7 @@ module.exports = function () {
               city: 1,
               state: 1,
               status: 1,
-              pincode:1,
+              pincode: 1,
               "getSalesUser.username": 1,
               "getSales.remarks": 1,
               "getSales.status": 1,
@@ -228,6 +234,7 @@ module.exports = function () {
         if (getInfo.length === 0) {
           return res.send({ status: 1, data: JSON.stringify(getInfo) });
         }
+
         info = getInfo.map((call) => {
           let obj = {};
           obj.contactPersonMobileNumber = call.contactPersonMobileNumber;
@@ -246,6 +253,7 @@ module.exports = function () {
           obj.assingedDate = call.getSales[0].assingedDate;
           return obj;
         });
+
         return res.send({ status: 1, data: JSON.stringify(info) });
       }
 
@@ -296,7 +304,7 @@ module.exports = function () {
               city: 1,
               state: 1,
               status: 1,
-              pincode:1,
+              pincode: 1,
               "getSalesUser.username": 1,
               "getSales.remarks": 1,
               "getSales.status": 1,
@@ -404,7 +412,7 @@ module.exports = function () {
               city: 1,
               state: 1,
               status: 1,
-              pincode:1,
+              pincode: 1,
               "getSalesUser.username": 1,
               "getSales.remarks": 1,
               "getSales.status": 1,
@@ -448,7 +456,42 @@ module.exports = function () {
           obj.getAfterSalesStatus = call.getAfterSales[0].status;
           return obj;
         });
-        return res.send({ status: 1, data: JSON.stringify(info) });
+        if (getReports.status === 1) {
+          return res.send({ status: 1, data: JSON.stringify(info) });
+        }
+        if (getReports.status === 2) {
+          paths = path.join(__dirname, "../templates/reports.ejs");
+          image = fs.readFileSync("./templates/abc.jpg", "base64");
+          image = `data:image/jpg;base64,${image}`;
+          ejs.renderFile(
+            paths,
+            { info: info[0], image: image },
+            (err, data) => {
+              if (err) {
+                console.log(err);
+              } else {
+                paths = path.join(__dirname, "../templates");
+                options = {
+                  format: "A4",
+                  path: `${paths}/${info[0].companyName}.pdf`,
+                  printBackground: true,
+                  margin: 42 | 20 | 22 | 20,
+                };
+                file = { content: data };
+                pdf.generatePdf(file, options, async (err, data) => {
+                  if (err) {
+                    return res.send({ status: 0, response: err.message });
+                  } else {
+                    return res.send({
+                      status: 1,
+                      response: `${info[0].companyName} reports downloaded`,
+                    });
+                  }
+                });
+              }
+            }
+          );
+        }
       }
     } catch (error) {
       return res.send({ status: 0, response: error.message });

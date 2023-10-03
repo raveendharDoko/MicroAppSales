@@ -373,6 +373,8 @@ module.exports = function () {
       let date = req.body,
         getDemoAssigns,
         getDemoReports,
+        getAssignAlign,
+        getReportAlign,
         startDate,
         endDate;
       startDate = new Date(date.startDate);
@@ -488,11 +490,45 @@ module.exports = function () {
       if (getDemoReports.length === 0 && getDemoAssigns.length === 0) {
         return res.send({ status: 1, data: [] });
       }
+      getReportAlign = getDemoReports.map((call) => {
+        let obj = {};
+        obj._id = call._id;
+        obj.assignedOn = call.scheduledAt;
+        obj.assignedTo = call.getAssignedTo[0]
+          ? call.getAssignedTo[0].username
+          : null;
+        obj.assignedBy = call.getAssignedBy[0]
+          ? call.getAssignedBy[0].username
+          : null;
+        obj.status = call.status;
+        obj.companyName = call.getCompany[0]
+          ? call.getCompany[0].companyName
+          : null;
+        obj.remarks = call.remarks;
+        return obj;
+      });
+      getAssignAlign = getDemoAssigns.map((call) => {
+        let obj = {};
+        obj._id = call._id;
+        obj.assignedOn = call.scheduledAt;
+        obj.assignedTo = call.getAssignedTo[0]
+          ? call.getAssignedTo[0].username
+          : null;
+        obj.assignedBy = call.getAssignedBy[0]
+          ? call.getAssignedBy[0].username
+          : null;
+        obj.status = call.status;
+        obj.companyName = call.getCompany[0]
+          ? call.getCompany[0].companyName
+          : null;
+        obj.remarks = call.remarks;
+        return obj;
+      });
       return res.send({
         status: 1,
         response: "from demo calls",
-        getDemoAssign: getDemoAssigns,
-        getDemoReport: getDemoReports,
+        getDemoAssign: getAssignAlign,
+        getDemoReport: getReportAlign,
       });
     } catch (error) {
       return res.send({ status: 0, response: error.message });

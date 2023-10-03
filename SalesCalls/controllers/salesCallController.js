@@ -302,6 +302,8 @@ module.exports = function () {
         getDemoInfo,
         getDemoReports,
         getSalesInfos,
+        getAssignAlign,
+        getReportAlign,
         getSalesAssigns,
         getSalesReports,
         getAfterSalesInfo,
@@ -379,6 +381,7 @@ module.exports = function () {
           },
         },
       ]);
+
       getSalesReports = await SalesCalls.aggregate([
         { $unwind: "$remarks" },
         {
@@ -426,19 +429,56 @@ module.exports = function () {
       if (getSalesReports.length === 0 && getSalesAssigns.length === 0) {
         return res.send({ status: 1, data: [] });
       }
+
+      getReportAlign = getSalesReports.map((call) => {
+        let obj = {};
+        obj._id = call._id;
+        obj.assignedOn = call.assignedDate;
+        obj.assignedTo = call.getAssignedTo[0]
+          ? call.getAssignedTo[0].username
+          : null;
+        obj.assignedBy = call.getAssignedBy[0]
+          ? call.getAssignedBy[0].username
+          : null;
+        obj.status = call.status;
+        obj.companyName = call.getCompany[0]
+          ? call.getCompany[0].companyName
+          : null;
+        obj.remarks = call.remarks;
+        return obj;
+      });
+
+      getAssignAlign = getSalesAssigns.map((call) => {
+        let obj = {};
+        obj._id = call._id;
+        obj.assignedOn = call.assignedDate;
+        obj.assignedTo = call.getAssignedTo[0]
+          ? call.getAssignedTo[0].username
+          : null;
+        obj.assignedBy = call.getAssignedBy[0]
+          ? call.getAssignedBy[0].username
+          : null;
+        obj.status = call.status;
+        obj.companyName = call.getCompany[0]
+          ? call.getCompany[0].companyName
+          : null;
+        obj.remarks = call.remarks;
+        return obj;
+      });
+
       getSalesInfos = {
         status: 1,
         response: "from sales calls",
-        getSalesReport: getSalesReports,
-        getSalesAssign: getSalesAssigns,
+        getSalesReport: getReportAlign,
+        getSalesAssign: getAssignAlign,
       };
       return res.send({
         status: 1,
         data: JSON.stringify({
-          getSalesInfo: getSalesInfos,
+          getSalesReport: getSalesInfos,
           getDemoReport: getDemoReports,
           getAfterSalesReport: getAfterSalesReports,
-        }),
+        }) 
       });
     } catch (error) {
       return res.send({ status: 0, response: error.message });

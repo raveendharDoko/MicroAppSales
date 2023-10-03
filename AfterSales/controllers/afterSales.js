@@ -222,6 +222,8 @@ module.exports = function () {
       let date = req.body,
         getAfterSalesAssigns,
         getAfterSalesReports,
+        getAssignAlign,
+        getReportAlign,
         startDate,
         endDate;
       startDate = new Date(date.startDate);
@@ -259,7 +261,7 @@ module.exports = function () {
           $project: {
             _id: 1,
             remarks: 1,
-            createAt: 1,
+            createdAt: 1,
             status: 1,
             "getCompany.companyName": 1,
             "getCompany.status": 1,
@@ -325,11 +327,47 @@ module.exports = function () {
         });
       }
 
+      getAssignAlign = getAfterSalesAssigns.map((call) => {
+        let obj = {};
+        obj._id = call._id;
+        obj.assignedOn = call.createdAt;
+        obj.assignedTo = call.getAssignedTo[0]
+          ? call.getAssignedTo[0].username
+          : null;
+        obj.assignedBy = call.getAssignedBy[0]
+          ? call.getAssignedBy[0].username
+          : null;
+        obj.status = call.status;
+        obj.companyName = call.getCompany[0]
+          ? call.getCompany[0].companyName
+          : null;
+        obj.remarks = call.remarks;
+        return obj;
+      });
+
+      getReportAlign = getAfterSalesReports.map((call) => {
+        let obj = {};
+        obj._id = call._id;
+        obj.assignedOn = call.createdAt;
+        obj.assignedTo = call.getAssignedTo[0]
+          ? call.getAssignedTo[0].username
+          : null;
+        obj.assignedBy = call.getAssignedBy[0]
+          ? call.getAssignedBy[0].username
+          : null;
+        obj.status = call.status;
+        obj.companyName = call.getCompany[0]
+          ? call.getCompany[0].companyName
+          : null;
+        obj.remarks = call.remarks;
+        return obj;
+      });
+
       return res.send({
         status: 1,
         response: "from after sales",
-        getAfterSalesAssign: getAfterSalesAssigns,
-        getAfterSalesReport: getAfterSalesReports,
+        getAfterSalesAssign: getAssignAlign,
+        getAfterSalesReport: getReportAlign,
       });
     } catch (error) {
       return res.send({ status: 0, response: error.message });

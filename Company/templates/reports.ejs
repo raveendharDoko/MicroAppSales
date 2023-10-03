@@ -1,0 +1,161 @@
+<style>
+    *{
+        box-sizing: border-box;
+        margin: 0%;
+    }
+    table,
+    th,
+    td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        text-align: center;
+    }
+</style>
+
+<section style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; display: flex; position: relative; width: 90%; height: 95%; padding: 20px; flex-direction: column; margin: 30px; gap: 30px; background-color: rgb(247, 247, 247);">
+    <div>
+        <img width="100%" src=<%=image %> alt="">
+    </div>
+    <div style="display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 500;">
+        <h4><%= info.companyName.toUpperCase() %> Reports</h4>
+    </div>
+    <div>
+        <h5 style="font-size: 1rem; font-weight: 300;">Contact Person:<span
+                style="font-size: 1rem; font-weight: 700;">
+                <%= info.contactPerson.toUpperCase() %>
+            </span>
+            </h5>
+            <h5 style="font-size: 1rem; font-weight: 300;">Contact Person Mobile Number:<span
+                style="font-size: 1rem; font-weight: 700;">
+                <%= info.contactPersonMobileNumber %>
+            </span>
+            </h5>
+            <h5 style="font-size: 1rem; font-weight: 300;">Company Mobile Number:<span
+                style="font-size: 1rem; font-weight: 700;">
+                <%= info.companyMobileNumber %>
+            </span>
+            </h5>
+            <h5 style="font-size: 1rem; font-weight: 300;">Address:<span
+                style="font-size: 1rem; font-weight: 700;">
+                <%= info.address %>
+            </span>
+            </h5>
+            <h5 style="font-size: 1rem; font-weight: 300;">City:<span
+                style="font-size: 1rem; font-weight: 700;">
+                <%= info.city %>
+            </span>
+            </h5>
+            <h5 style="font-size: 1rem; font-weight: 300;">State:<span
+                style="font-size: 1rem; font-weight: 700;">
+                <%= info.state %>
+            </span>
+            </h5>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        <table style="border: 1px solid black; border-collapse: collapse">
+            <tr style="border: 1px solid black; border-collapse: collapse;  background-color: rgb(255, 217, 0); ">
+                <th colspan="4">Sales calls by <%= info.getSalesUser.toUpperCase() %></th>
+            </tr>
+            <tr>
+                <td>Date</td>
+                <td>Description</td>
+                <td>Contact Person</td>
+                <td>Position</td>
+            </tr>
+            <% info.getSalesRemarks.forEach(function(e) { %>
+                <tr>
+                  <td>
+                    <%= new Date(e.enteredDate).toLocaleString()  %>
+                  </td>
+                  <td>
+                    <%= e.data %>
+                  </td>
+                  <td>
+                    <%= e.contactPerson %>
+                  </td>
+                  <td>
+                    <%= e.position %>
+                  </td>
+                </tr>
+                <% }) %>
+        </table>
+        <table style="border: 1px solid black; border-collapse: collapse">
+            <tr style="border: 1px solid black; border-collapse: collapse;  background-color: rgb(255, 217, 0); ">
+                <th colspan="4">Demo calls by <%= info.getDemoUser.toUpperCase() %></th>
+            </tr>
+            <tr>
+                <td>Date</td>
+                <td>Description</td>
+                <td>Contact Person</td>
+                <td>Position</td>
+            </tr>
+            <% info.getDemoRemarks.forEach(function(e) { %>
+                <tr>
+                  <td>
+                    <%= new Date(e.enteredDate).toLocaleString()  %>
+                  </td>
+                  <td>
+                    <%= e.data %>
+                  </td>
+                  <td>
+                    <%= e.contactPerson %>
+                  </td>
+                  <td>
+                    <%= e.position %>
+                  </td>
+                </tr>
+                <% }) %>
+        </table>
+        <table style="border: 1px solid black; border-collapse: collapse">
+            <tr style="border: 1px solid black; border-collapse: collapse;  background-color: rgb(255, 217, 0); ">
+                <th colspan="5">After sales follow ups by <%= info.getAfterSalesUser.toUpperCase() %></th>
+            </tr>
+            <tr>
+                <td>Date</td>
+                <td>Description</td>
+                <td>Contact Person</td>
+                <td>Current volume</td>
+                <td>Promised volume</td>
+
+            </tr>
+            <% info.getAfterSalesRemarks.forEach(function(e) { %>
+                <tr>
+                  <td>
+                    <%= new Date(e.createdAt).toLocaleString()  %>
+                  </td>
+                  <td>
+                    <%= e.remark %>
+                  </td>
+                  <td>
+                    <%= e.contactPerson %>
+                  </td>
+                  <td>
+                    <%= e.currentVolume %>
+                  </td>
+                  <td>
+                    <%= e.promisedVolume %>
+                  </td>
+                </tr>
+                <% }) %>
+        </table>
+    </div>
+    <!-- <div style="display: flex; flex-direction: column;   padding-bottom: 30px; gap: 10px;  ">
+        <h4 style="font-size: 1.3rem; font-weight:600;">Terms & Conditions</h4>
+
+
+            <p>1.Delivery Order issued against a suitable Bank Guarantee / Seaway Bill / Original Bill of
+                Lading duly endorsed in possession and is subject to all Clause/Terms and condition of United
+                Freight Management Pvt Ltd Bill of Lading</p>
+
+
+            <p>2.Delivery Order issued against a suitable Bank Guarantee / Seaway Bill / Original Bill of
+                Lading duly endorsed in possession and is subject to all Clause/Terms and condition of United
+                Freight Management Pvt Ltd Bill of Lading</p>
+
+    </div> -->
+</section>
